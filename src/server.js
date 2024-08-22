@@ -5,6 +5,7 @@ const cors = require("cors");
 
 const createPet = require("./controllers/createPet");
 const listPet = require("./controllers/listPet");
+const getPet = require("./controllers/getPet");
 
 const server = express(); //*creates server
 
@@ -18,7 +19,7 @@ server.use(router);
 
 
 
-//* create pet
+//* creates a new pet
 server.post("/pets/", async (req, res) => {
     try {
         const newPet = await createPet(req.body)
@@ -28,7 +29,7 @@ server.post("/pets/", async (req, res) => {
     }
 });
 
-//* lists pets
+//* lists pets according to filters or search queries
 server.get("/pets/", async (req, res) => {
     try {
         const petList = await listPet(req.query)
@@ -38,7 +39,16 @@ server.get("/pets/", async (req, res) => {
     }
 })
 
-
+//* gets a pet by it's id
+server.get('/pets/:idPet', async(req, res) => {
+  const petId = req.params.idPet;
+  try {
+    const petFound = await getPet(petId);
+    res.status(200).json(petFound);
+  } catch (error) {
+    res.status(401).json({ error: error.message});
+  }
+});
 
 
 
