@@ -5,6 +5,7 @@ const cors = require("cors");
 
 const createPet = require("./controllers/createPet");
 const listPet = require("./controllers/listPet");
+const createRequest = require("./controllers/createRequest"); 
 
 const server = express(); //*creates server
 
@@ -38,6 +39,15 @@ server.get("/pets/", async (req, res) => {
     }
 })
 
+//* create request
+server.post("/requests/", async (req, res) => {
+    try {
+        const newRequest = await createRequest(req.body);
+        res.status(200).json(newRequest);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
 
 
 
