@@ -4,6 +4,7 @@ const morgan = require("morgan");
 const cors = require("cors");
 
 const createPet = require("./controllers/createPet");
+const listPet = require("./controllers/listPet");
 
 const server = express(); //*creates server
 
@@ -18,7 +19,7 @@ server.use(router);
 
 
 //* create pet
-server.post("/pet/", async (req, res) => {
+server.post("/pets/", async (req, res) => {
     try {
         const newPet = await createPet(req.body)
         res.status(200).json(newPet);
@@ -26,6 +27,16 @@ server.post("/pet/", async (req, res) => {
         res.status(400).json({ error: error.message});
     }
 });
+
+//* lists pets
+server.get("/pets/", async (req, res) => {
+    try {
+        const petList = await listPet(req.query)
+        res.status(200).json(petList);
+    } catch (error) {
+        res.status(400).json({ error: error.message});
+    }
+})
 
 
 
