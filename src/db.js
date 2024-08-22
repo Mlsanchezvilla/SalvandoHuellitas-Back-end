@@ -10,7 +10,7 @@ const { //* defines variables to access the DB
 
 //* imports functions for model creation (tables)
 const PetFunction = require("./models/Pet");
-
+const RequestFunction = require("./models/request");
 
 //* connection to the DB
 const sequelize = new Sequelize(`postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/huellitas`, {
@@ -47,11 +47,11 @@ sequelize.models = Object.fromEntries(capsEntries);
 
 //* calls the model's creation and establishes n:n relationship
 PetFunction(sequelize)
-
+RequestFunction(sequelize)
 
 // all imported  sequelize.models
 // destructuring to relate the models
-const {Pet} = sequelize.models;
+const {Pet, Request} = sequelize.models;
 
 
 //* model relationships
