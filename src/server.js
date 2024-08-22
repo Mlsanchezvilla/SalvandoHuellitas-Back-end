@@ -3,6 +3,7 @@ const router = require("./routes");
 const morgan = require("morgan");
 const cors = require("cors");
 
+const createPet = require("./controllers/createPet");
 
 const server = express(); //*creates server
 
@@ -16,11 +17,11 @@ server.use(router);
 
 
 
-//* lists all existing countries
-server.get("/", async (req, res) => {
-    const search = req.query;
+//* create pet
+server.post("/pet/", async (req, res) => {
     try {
-        res.status(200).json("holi");
+        const newPet = await createPet(req.body)
+        res.status(200).json(newPet);
     } catch (error) {
         res.status(400).json({ error: error.message});
     }

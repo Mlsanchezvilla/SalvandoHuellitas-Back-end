@@ -29,7 +29,7 @@ module.exports = (sequelize) => {
       allowNull: false,
     },
     age: {
-      type: DataTypes.ENUM("puppy", "young", "adulkt", "elder"),
+      type: DataTypes.ENUM("puppy", "young", "adult", "elder"),
       allowNull: false,
     },
     size: {
