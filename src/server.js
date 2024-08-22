@@ -31,7 +31,7 @@ server.post("/pets/", async (req, res) => {
 //* lists pets
 server.get("/pets/", async (req, res) => {
     try {
-        const petList = await listPet(req.body)
+        const petList = await listPet(req.query)
         res.status(200).json(petList);
     } catch (error) {
         res.status(400).json({ error: error.message});
