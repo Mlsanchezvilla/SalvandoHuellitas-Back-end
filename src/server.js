@@ -3,6 +3,9 @@ const router = require("./routes");
 const morgan = require("morgan");
 const cors = require("cors");
 
+const createPet = require("./controllers/createPet");
+const listPet = require("./controllers/listPet");
+const {createUser} = require("./controllers/createUser");
 
 const server = express(); //*creates server
 
@@ -16,17 +19,28 @@ server.use(router);
 
 
 
-//* lists all existing countries
-server.get("/", async (req, res) => {
-    const search = req.query;
+//* create pet
+server.post("/pets/", async (req, res) => {
     try {
-        res.status(200).json("holi");
+        const newPet = await createPet(req.body)
+        res.status(200).json(newPet);
     } catch (error) {
         res.status(400).json({ error: error.message});
     }
 });
 
+//* lists pets
+server.get("/pets/", async (req, res) => {
+    try {
+        const petList = await listPet(req.query)
+        res.status(200).json(petList);
+    } catch (error) {
+        res.status(400).json({ error: error.message});
+    }
+})
 
+//*create user
+server.post("/users/", createUser)
 
 
 
