@@ -6,6 +6,7 @@ const cors = require("cors");
 const createPet = require("./controllers/createPet");
 const listPet = require("./controllers/listPet");
 const createRequest = require("./controllers/createRequest"); 
+const listRequest = require("./controllers/listRequest");
 
 const server = express(); //*creates server
 
