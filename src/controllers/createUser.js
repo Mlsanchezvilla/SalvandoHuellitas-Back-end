@@ -1,4 +1,4 @@
-const User = require('../models/User'); 
+const { User } =  require("../db");
 const bcrypt = require('bcrypt');
 
 const createUser = async (req, res) => {
@@ -7,7 +7,9 @@ const createUser = async (req, res) => {
     const { fullName, email, password, age, phone, idCard, occupation, adoptions } = req.body;
 
     
-    const existingUser = await User.findOne({ where: { email } });
+    const existingUser = await User.findOne({
+      where: {email: email}
+    })
     if (existingUser) {
       return res.status(400).json({ message: 'El correo electrónico ya está en uso' });
     }
@@ -29,7 +31,7 @@ const createUser = async (req, res) => {
 
     res.status(201).json({ 
       message: 'Usuario creado exitosamente',
-      user: newUser 
+      object: newUser
     });
   } catch (error) {
     res.status(500).json({ message: 'Error al crear el usuario', error: error.message });
