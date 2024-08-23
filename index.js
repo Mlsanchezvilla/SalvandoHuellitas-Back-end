@@ -23,7 +23,7 @@ const PORT = 3001; //* previous port definition
 
 
 // Syncing all the models at once.
-conn.sync({ alter: true }).then(() => {
+conn.sync({ force: true }).then(() => {
   //* force: true borra db
   //* alter: true mantiene db
 server.listen(PORT, () => {

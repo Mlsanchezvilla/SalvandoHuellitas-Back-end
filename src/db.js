@@ -10,6 +10,9 @@ const { //* defines variables to access the DB
 
 //* imports functions for model creation (tables)
 const PetFunction = require("./models/Pet");
+const UserFunction = require("./models/User");
+const ReviewFunction = require("./models/Review");
+const RequestFunction = require("./models/Request");
 
 
 //* connection to the DB
@@ -47,11 +50,14 @@ sequelize.models = Object.fromEntries(capsEntries);
 
 //* calls the model's creation and establishes n:n relationship
 PetFunction(sequelize)
+UserFunction(sequelize)
+ReviewFunction(sequelize)
+RequestFunction(sequelize)
 
 
 // all imported  sequelize.models
 // destructuring to relate the models
-const {Pet} = sequelize.models;
+const {Pet, User, Review, Request} = sequelize.models;
 
 
 //* model relationships
