@@ -5,10 +5,12 @@ const cors = require("cors");
 
 const createPet = require("./controllers/createPet");
 const listPet = require("./controllers/listPet");
+const getPet = require("./controllers/getPet");
 const createReview = require("./controllers/createReview");
 const listRequest = require("./controllers/listRequest");
 const listReview = require("./controllers/listReview");
 const {createUser} = require("./controllers/createUser");
+
 
 const server = express(); //*creates server
 
@@ -22,7 +24,7 @@ server.use(router);
 
 
 
-//* create pet
+//* creates a new pet
 server.post("/pets/", async (req, res) => {
     try {
         const newPet = await createPet(req.body)
@@ -32,7 +34,7 @@ server.post("/pets/", async (req, res) => {
     }
 });
 
-//* lists pets
+//* lists pets according to filters or search queries
 server.get("/pets/", async (req, res) => {
     try {
         const petList = await listPet(req.query)
@@ -41,6 +43,17 @@ server.get("/pets/", async (req, res) => {
         res.status(400).json({ error: error.message});
     }
 })
+
+
+//* gets a pet by it's id
+server.get('/pets/:idPet', async(req, res) => {
+  const petId = req.params.idPet;
+  try {
+    const petFound = await getPet(petId);
+    res.status(200).json(petFound);
+  } catch (error) {
+    res.status(401).json({ error: error.message});
+  }
 
 //*create user
 server.post("/users/", createUser)
@@ -53,6 +66,7 @@ server.post("/reviews/", async (req, res) => {
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
+
 });
 
 //* lists reviews
