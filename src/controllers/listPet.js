@@ -2,13 +2,25 @@ const { Pet } = require("../db");
 const { Op } = require('sequelize');
 
 
-const listPet = async (query) => {
-    // Obtain search query parameter from query
-    let search = query.search;
+const listPet = async (queryParams) => {
+    let {search, page, status, species, age, size, energyLevel, okWithPets, okWithKids} = queryParams;
+
+    // rebuild query with variables to filter
+    let query = {status, species, age, size, energyLevel, okWithPets, okWithKids}
+
+    // Remove undefined values from query to avoid filter issues
+    for (let queryKey in query) {
+        if (!query[queryKey]){
+            delete query[queryKey]
+        }
+    }
+
+    // Pagination Variables
+    page = parseInt(page);
+    const itemsPerPage = 12;
+
     // If search is not undefined we should manage that value on query
     if (search){
-        // First remove the "search" key from the object
-        delete query.search
         // Define a query where breed is iLike search term or name is iLike search term
         // (Check sequelize doc)
         query[Op.or] = [
@@ -18,11 +30,17 @@ const listPet = async (query) => {
     }
 
     //* lists all existing pets
-    let pets = await Pet.findAll({
-        where: query
+    let petsCount = await Pet.findAndCountAll({
+        where: query,
+        limit: itemsPerPage,
+        offset: itemsPerPage * (page-1),
     });
 
-    return pets;
+    return {
+        page: page,
+        totalPages: Math.ceil(petsCount.count / itemsPerPage),
+        results: petsCount.rows,
+    };
 };
 
 
