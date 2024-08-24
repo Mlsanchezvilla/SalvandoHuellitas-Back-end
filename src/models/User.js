@@ -23,7 +23,7 @@ module.exports = (sequelize) => {
     allowNull: false,
     unique: true,
     validate: {
-      isEmail: true
+      isEmail: true // Cambiar a true para soportar autenticación social
     }
   },
   password: {
@@ -53,8 +53,18 @@ module.exports = (sequelize) => {
     type: DataTypes.INTEGER,
     allowNull: false,
     defaultValue: 0
+  },
+  googleId: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    unique: true
+  },
+  facebookId: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    unique: true
   }
 }, {
   timestamps: true, 
-});
+ });
 }
