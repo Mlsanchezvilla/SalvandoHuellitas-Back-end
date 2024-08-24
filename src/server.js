@@ -53,7 +53,8 @@ server.get('/pets/:idPet', async(req, res) => {
     res.status(200).json(petFound);
   } catch (error) {
     res.status(401).json({ error: error.message});
-  }
+  } 
+})
 
 //*create user
 server.post("/users/", createUser)
