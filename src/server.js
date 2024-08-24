@@ -54,6 +54,7 @@ server.get('/pets/:idPet', async(req, res) => {
   } catch (error) {
     res.status(401).json({ error: error.message});
   }
+})
 
 //*create user
 server.post("/users/", createUser)
