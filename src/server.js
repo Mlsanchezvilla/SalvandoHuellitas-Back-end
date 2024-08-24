@@ -9,6 +9,7 @@ const getPet = require("./controllers/getPet");
 const createReview = require("./controllers/createReview");
 const listRequest = require("./controllers/listRequest");
 const listReview = require("./controllers/listReview");
+const getJWT = require("./controllers/getJWT");
 const {createUser} = require("./controllers/createUser");
 
 
@@ -89,5 +90,7 @@ router.get("/requests/", async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 });
+
+server.post("/auth/", getJWT)
 
 module.exports = server;
