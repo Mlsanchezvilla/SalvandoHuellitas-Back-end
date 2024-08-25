@@ -18,23 +18,72 @@ module.exports = (sequelize) => {
       },
     },
 
-    isActive: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: true,
+    id_pet: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'Pets',
+        key: 'id',
+      },
     },
 
-    status: {
-      type: DataTypes.ENUM('1', '2', '3', '4', '5'),
+    preferedSpecie: {
+      type: DataTypes.ENUM('cat', 'dog'),
       allowNull: false,
     },
 
-    comment: {
-      type: DataTypes.STRING,
-      allowNull: true,
+    timeAvailable: {
+      type: DataTypes.ENUM('0', '-1', '1', '+1'),
+      allowNull: false,
     },
 
-    date: {
-      type: DataTypes.DATE,
+    space: {
+      type: DataTypes.ENUM('small', 'medium', 'large'),
+      allowNull: false,
+    },
+
+    petsAllowed: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
+
+    totalHabitants: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+
+    allHabitantsAgree: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
+
+    noScaping: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
+
+    hasPets: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
+
+    hasKids: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
+
+    addedCondition: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
+
+    agreeToVet: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
+
+    agreeToExpenses: {
+      type: DataTypes.BOOLEAN,
       allowNull: false,
     },
   }, {
