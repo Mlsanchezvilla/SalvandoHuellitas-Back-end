@@ -54,6 +54,7 @@ module.exports = (sequelize) => {
     allowNull: false,
     defaultValue: 0
   },
+<<<<<<< HEAD
   googleId: {
     type: DataTypes.STRING,
     allowNull: true,
@@ -63,8 +64,16 @@ module.exports = (sequelize) => {
     type: DataTypes.STRING,
     allowNull: true,
     unique: true
+=======
+  gender: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: {
+      isIn: [['female', 'male']] // Puedes agregar más opciones si es necesario
+    }
+>>>>>>> develop
   }
-}, {
+  }, {
   timestamps: true, 
  });
 }
