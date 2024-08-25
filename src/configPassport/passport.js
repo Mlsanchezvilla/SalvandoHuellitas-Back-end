@@ -4,8 +4,8 @@ const FacebookStrategy = require('passport-facebook').Strategy;
 const User = require('../models/User'); 
 
 passport.use(new GoogleStrategy({
-    clientID: 'YOUR_GOOGLE_CLIENT_ID',
-    clientSecret: 'YOUR_GOOGLE_CLIENT_SECRET',
+    clientID: 'GOOGLE_CLIENT_ID',
+    clientSecret: 'GOOGLE_CLIENT_SECRET',
     callbackURL: '/auth/google/callback'
 }, async (accessToken, refreshToken, profile, done) => {
     try {
@@ -17,8 +17,8 @@ passport.use(new GoogleStrategy({
 }));
 
 passport.use(new FacebookStrategy({
-    clientID: 'YOUR_FACEBOOK_APP_ID',
-    clientSecret: 'YOUR_FACEBOOK_APP_SECRET',
+    clientID: 'YOUR_FACEBOOK_APP_ID',  // Reemplaza con tu Facebook App ID
+    clientSecret: 'YOUR_FACEBOOK_APP_SECRET',  // Reemplaza con tu Facebook App Secret
     callbackURL: '/auth/facebook/callback'
 }, async (accessToken, refreshToken, profile, done) => {
     try {
