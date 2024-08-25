@@ -15,7 +15,6 @@ const createReview = require("./controllers/createReview");
 const listRequest = require("./controllers/listRequest");
 const listReview = require("./controllers/listReview");
 const {  createUser, findOrCreateUser  } = require("./controllers/createUser");
-const router = require("./routes");
 const { createPetCloudinary } = require("./controllers/createPetCloudinary");
 // Configuración de estrategias de autenticación
 const { Strategy: GoogleStrategy } = require("passport-google-oauth20");
