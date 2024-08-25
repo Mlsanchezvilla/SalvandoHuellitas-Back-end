@@ -24,9 +24,9 @@ server.use(bodyParser.json({ limit: "10mb" }));
 server.use(router);
 
 
-server.put('/requests/:id', updateRequest);
 
-// TODO: Refactor this to be more DRY
+
+
 //* creates a new pet
 server.post("/pets/", async (req, res) => {
   try {
