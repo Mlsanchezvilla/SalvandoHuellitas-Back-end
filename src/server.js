@@ -25,6 +25,7 @@ server.use(router);
 
 
 server.put('/requests/:id', updateRequest);
+
 // TODO: Refactor this to be more DRY
 //* creates a new pet
 server.post("/pets/", async (req, res) => {
@@ -57,16 +58,7 @@ server.get("/pets/:idPet", async (req, res) => {
   }
 });
 
-//* gets a pet by it's id
-server.get("/pets/:idPet", async (req, res) => {
-  const petId = req.params.idPet;
-  try {
-    const petFound = await getPet(petId);
-    res.status(200).json(petFound);
-  } catch (error) {
-    res.status(401).json({ error: error.message });
-  }
-});
+
 
 //*create user
 server.post("/users/", createUser);
