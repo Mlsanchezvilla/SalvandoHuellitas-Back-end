@@ -54,6 +54,13 @@ module.exports = (sequelize) => {
     history: {
       type: DataTypes.STRING,
     },
+    gender: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        isIn: [['female', 'male']] 
+      }
+    }
   }, {
     timestamps: false,
   });
