@@ -23,6 +23,8 @@ server.use(cors());
 server.use(router);
 
 
+server.put('/requests/:id', updateRequest);
+
 
 //* creates a new pet
 server.post("/pets/", async (req, res) => {
