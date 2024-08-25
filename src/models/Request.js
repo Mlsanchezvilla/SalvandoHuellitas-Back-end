@@ -19,7 +19,7 @@ module.exports = (sequelize) => {
     },
 
     id_pet: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
       references: {
         model: 'Pets',
