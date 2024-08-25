@@ -53,8 +53,15 @@ module.exports = (sequelize) => {
     type: DataTypes.INTEGER,
     allowNull: false,
     defaultValue: 0
+  },
+  gender: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: {
+      isIn: [['female', 'male']] // Puedes agregar más opciones si es necesario
+    }
   }
-}, {
+  }, {
   timestamps: true, 
 });
 }
