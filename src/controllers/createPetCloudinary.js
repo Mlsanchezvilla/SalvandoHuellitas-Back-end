@@ -7,23 +7,23 @@ const createPetCloudinary = async (req, res) => {
     const buffer = file.buffer;
     await uploadImageStreamCloudinary(buffer)
       .then((result) => {
-        console.log(result.secure_url)
-        const newPet =  Pet.create({
+        console.log(result.secure_url);
+        const newPet = Pet.create({
           name: req.body.name,
           photo: result.secure_url,
           status: req.body.status,
-          species: "dog",
-          age: "adult",
-          size: "medium",
-          breed: "bulldog",
-          energyLevel: "medium",
+          species: req.body.species,
+          age: req.body.age,
+          size: req.body.size,
+          breed: req.body.breed,
+          energyLevel: req.body.energyLevel,
           okWithPets: true,
           okWithKids: true,
-          history: ""
+          history: "",
         });
       })
       .catch((error) => {
-        console.error('Error al subir la imagen a Cloudinary:', error);
+        console.error("Error al subir la imagen a Cloudinary:", error);
       });
     res.status(201).json({
       message: "Mascota creada exitosamente",
