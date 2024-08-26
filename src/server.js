@@ -162,14 +162,12 @@ server.post('/auth/google', async (req, res) => {
     try {
         const {token} = req.body;
         console.log(token)
-        const response = await axios.post(
-            'https://oauth2.googleapis.com/token',
+        const response = await axios.get(
+            'https://oauth2.googleapis.com/tokeninfo',
             {
-                code: "",
-                client_id: '1092527296947-6aebqgtuhuujsgkpll0efhpolndl1vvk.apps.googleusercontent.com',
-                client_secret: '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',
-                redirect_uri: 'postmessage',
-                grant_type: 'authorization_code'
+                params:{
+                    access_token: token
+                }
             }
         );
         console.log(response);
