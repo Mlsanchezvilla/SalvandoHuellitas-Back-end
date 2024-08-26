@@ -14,13 +14,17 @@ const getPet = require("./controllers/getPet");
 const createReview = require("./controllers/createReview");
 const listRequest = require("./controllers/listRequest");
 const listReview = require("./controllers/listReview");
+const getJWT = require("./controllers/getJWT");
+const {createUser} = require("./controllers/createUser");
+
+
+const server = express(); //*creates server
+
 const {  createUser, findOrCreateUser  } = require("./controllers/createUser");
 const { createPetCloudinary } = require("./controllers/createPetCloudinary");
 // Configuración de estrategias de autenticación
 const { Strategy: GoogleStrategy } = require("passport-google-oauth20");
 //const { Strategy: FacebookStrategy } = require("passport-facebook");
-
-const server = express();
 
 
 server.use(morgan("dev"));
@@ -167,6 +171,9 @@ server.get("/requests/", async (req, res) => {
 
 });
 
+//user authentication with email and password
+server.post("/auth/", getJWT)
+
 
 
 const multer = require("multer");
@@ -182,3 +189,4 @@ server.post(
 );
 
 module.exports = server; //*exports server
+
