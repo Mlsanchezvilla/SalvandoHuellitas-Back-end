@@ -15,12 +15,14 @@ const createPetCloudinary = async (req, res) => {
           species: req.body.species,
           age: req.body.age,
           size: req.body.size,
+          gender: req.body.gender,
           breed: req.body.breed,
           energyLevel: req.body.energyLevel,
           okWithPets: true,
           okWithKids: true,
           history: "",
         });
+        console.log(req.body);
       })
       .catch((error) => {
         console.error("Error al subir la imagen a Cloudinary:", error);
