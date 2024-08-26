@@ -5,7 +5,7 @@ const cors = require("cors");
 const session = require("express-session");
 const passport = require("passport");
 const bodyParser = require('body-parser');
-
+const axios = require('axios');
 
 // Importar controladores y rutas
 const createPet = require("./controllers/createPet");
@@ -25,6 +25,7 @@ const { createPetCloudinary } = require("./controllers/createPetCloudinary");
 // Configuración de estrategias de autenticación
 const { Strategy: GoogleStrategy } = require("passport-google-oauth20");
 //const { Strategy: FacebookStrategy } = require("passport-facebook");
+// import {} from "passport-google-oauth20"
 
 
 server.use(morgan("dev"));
@@ -56,7 +57,7 @@ passport.deserializeUser(async (id, done) => {
 passport.use(new GoogleStrategy({
     clientID: "GOOGLE_CLIENT_ID",
     clientSecret: "GOOGLE_CLIENT_SECRET",
-    callbackURL: "/auth/google"
+    callbackURL: "http://localhost:3001/auth/google/callback"
 }, async (accessToken, refreshToken, profile, done) => {
     try {
         const user = await findOrCreateUser({ googleId: profile.id, fullName: profile.displayName, email: profile.emails[0].value });
@@ -162,12 +163,26 @@ server.get("/requests/", async (req, res) => {
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
+})
 
-    server.get('/auth/google'), async (req, res) => {
-        const page = parseInt(req.query.page, 10) || 1;
-        const limit = parseInt(req.query.limit, 10) || 10;
-        const offset = (page - 1) * limit;
+server.post('/auth/google', async (req, res) => {
+    try {
+        const {token} = req.body;
+        console.log(token)
+        const response = await axios.get(
+            'https://oauth2.googleapis.com/tokeninfo',
+            {
+                params:{
+                    access_token: token
+                }
+            }
+        );
+        console.log(response);
+    } catch (error){
+        console.log(error.response)
+        res.status(400).json({ error: error.message });
     }
+
 
 });
 
