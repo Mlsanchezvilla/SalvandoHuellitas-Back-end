@@ -1,25 +1,24 @@
+require('dotenv').config();
 const express = require("express");
 const router = require("./routes");
 const morgan = require("morgan");
 const cors = require("cors");
-const session = require("express-session");
+//const session = require("express-session");
 const passport = require("passport");
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser'); // Importa cookie-parser
-const jwt = require('jsonwebtoken'); // Asegúrate de requerir jsonwebtoken
+const cookieParser = require('cookie-parser'); 
+const jwt = require('jsonwebtoken'); 
 
 
-// Importar controladores y rutas
+
 const createPet = require("./controllers/createPet");
 const listPet = require("./controllers/listPet");
 const getPet = require("./controllers/getPet");
 const createReview = require("./controllers/createReview");
 const listRequest = require("./controllers/listRequest");
 const listReview = require("./controllers/listReview");
-const { createUser, findOrCreateUser } = require("./controllers/createUser");
+const { createUser } = require("./controllers/createUser");
 const { createPetCloudinary } = require("./controllers/createPetCloudinary");
-// Configuración de estrategias de autenticación
-const { Strategy: GoogleStrategy } = require("passport-google-oauth20");
 
 const server = express();
 
@@ -28,26 +27,12 @@ server.use(cors());
 server.use(express.json());
 server.use(bodyParser.json({ limit: '10mb' }));
 server.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
-server.use(session({ secret: "your_secret_key", resave: false, saveUninitialized: true }));
-server.use(cookieParser()); // Agrega middleware para manejar cookies
+//server.use(session({ secret: process.env.SESSION_SECRET, resave: false, saveUninitialized: true }));
+server.use(cookieParser()); // middleware para manejar cookies
 server.use(passport.initialize());
-server.use(passport.session());
+//server.use(passport.session());
 
 server.use(router);
-
-// Serialización y deserialización de usuario
-passport.serializeUser((user, done) => {
-    done(null, user.id);
-});
-
-passport.deserializeUser(async (id, done) => {
-    try {
-        const user = await findOrCreateUser({ id });
-        done(null, user);
-    } catch (err) {
-        done(err, null);
-    }
-});
 
 
 
@@ -64,7 +49,6 @@ server.get('/auth/google/callback', passport.authenticate('google', { failureRed
         sameSite: 'Strict', // Previene el envío de la cookie en solicitudes de origen cruzado
         maxAge: 3600000
     });
-
 
     res.redirect('/'); // Redirige a la página principal o a donde desees
 });
@@ -90,9 +74,9 @@ const authenticateToken = (req, res, next) => {
 
 
 
+// Use the authentication middleware on protected routes
+server.use('/api', authenticateToken, router); 
 
-// Rutas principales
-server.use('/api', router); // Asegúrate de usar el prefijo adecuado para tus rutas
 
 server.post('/logout', (req, res) => {
   res.clearCookie('access_token');
