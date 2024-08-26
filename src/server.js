@@ -66,9 +66,6 @@ server.get("/pets/:idPet", async (req, res) => {
   }
 });
 
-//*create user
-server.post("/users/", createUser);
-
 //* create review
 server.post("/reviews/", async (req, res) => {
   try {

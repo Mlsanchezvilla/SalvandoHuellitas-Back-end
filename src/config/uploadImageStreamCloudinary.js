@@ -1,5 +1,5 @@
 const cloudinary = require("./cloudinaryConfig");
-const streamifier = require('streamifier');
+const streamifier = require("streamifier");
 
 async function uploadImageStream(buffer) {
   try {
@@ -16,7 +16,7 @@ async function uploadImageStream(buffer) {
     });
   } catch (error) {
     console.error("Error al subir la imagen:", error);
-    throw error; // Propaga el error para manejarlo fuera de la función si es necesario
+    throw error;
   }
 }
 
