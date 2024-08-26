@@ -3,10 +3,10 @@ const { Op } = require('sequelize');
 
 
 const listPet = async (queryParams) => {
-    let {search, page, status, species, age, size, energyLevel, okWithPets, okWithKids} = queryParams;
+    let {search, page, status, species, age, size, energyLevel, okWithPets, okWithKids, gender} = queryParams;
 
     // rebuild query with variables to filter
-    let query = {status, species, age, size, energyLevel, okWithPets, okWithKids}
+    let query = {status, species, age, size, energyLevel, okWithPets, okWithKids, gender}
 
     // Remove undefined values from query to avoid filter issues
     for (let queryKey in query) {

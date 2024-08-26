@@ -20,6 +20,7 @@ module.exports = (sequelize) => {
         },
       },
 
+ 
       id_pet: {
         type: DataTypes.UUID,
         allowNull: false,
@@ -27,7 +28,7 @@ module.exports = (sequelize) => {
           model: "Pets",
           key: "id",
         },
-      },
+
 
       preferedSpecie: {
         type: DataTypes.ENUM("cat", "dog"),
