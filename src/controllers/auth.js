@@ -1,20 +1,44 @@
-const passport = require('passport');
+const axios = require("axios");
+const { User } =  require("../db");
+const createJWT = require("../jwt")
 
-const googleAuth = passport.authenticate('google', { scope: ['profile'] });
 
-const googleAuthCallback = passport.authenticate('google', { failureRedirect: '/' }, (req, res) => {
-    res.redirect('/');
-});
+ const googleAuth = async (req, res) => {
+    try {
+        const { token } = req.body;
+        const response = await axios.get(
+            'https://www.googleapis.com/oauth2/v1/userinfo',
+            {
+                params:{
+                    access_token: token,
+                }
+            }
+        );
+        let googleData = response.data;
+        // Search by google Id
+        let user = await User.findOne({
+            where: {googleId: googleData.id}
+        })
+        if(!user){
+            let user = await User.findOne({
+                where: {email: googleData.email}
+            })
+        }
+        if (!user){
+            let user = await User.create({
+                email: googleData.email,
+                googleId: googleData.id,
+                fullName: googleData.name,
+            })
+        }
 
-const facebookAuth = passport.authenticate('facebook');
+        let jwt = createJWT(user)
+        res.status(200).json({token: jwt});
+    } catch (error){
+        res.status(400).json({ error: error.message });
+    }
 
-const facebookAuthCallback = passport.authenticate('facebook', { failureRedirect: '/' }, (req, res) => {
-    res.redirect('/');
-});
 
-module.exports = {
-    googleAuth,
-    googleAuthCallback,
-    facebookAuth,
-    facebookAuthCallback
-};
+}
+
+module.exports = {googleAuth};
