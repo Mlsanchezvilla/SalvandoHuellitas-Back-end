@@ -6,7 +6,7 @@ const session = require("express-session");
 const passport = require("passport");
 const bodyParser = require("body-parser");
 
-// Importar controladores y rutas
+
 const createPet = require("./controllers/createPet");
 const listPet = require("./controllers/listPet");
 const getPet = require("./controllers/getPet");
@@ -18,7 +18,11 @@ const { createUser } = require("./controllers/createUser");
 
 const server = express(); //*creates server
 
+
 const { findOrCreateUser } = require("./controllers/createUser");
+
+const {  findOrCreateUser  } = require("./controllers/createUser");
+
 const { createPetCloudinary } = require("./controllers/createPetCloudinary");
 // Configuración de estrategias de autenticación
 const { Strategy: GoogleStrategy } = require("passport-google-oauth20");
