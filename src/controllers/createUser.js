@@ -1,23 +1,31 @@
-const { User } =  require("../db");
-const bcrypt = require('bcrypt');
+const { User } = require("../db");
+const bcrypt = require("bcrypt");
 
 const createUser = async (req, res) => {
   try {
-    
-    const { fullName, email, password, age, phone, idCard, occupation, adoptions } = req.body;
+    const {
+      fullName,
+      email,
+      password,
+      age,
+      phone,
+      idCard,
+      occupation,
+      adoptions,
+      gender,
+    } = req.body;
 
-    
     const existingUser = await User.findOne({
-      where: {email: email}
-    })
+      where: { email: email },
+    });
     if (existingUser) {
-      return res.status(400).json({ message: 'El correo electrónico ya está en uso' });
+      return res
+        .status(400)
+        .json({ message: "El correo electrónico ya está en uso" });
     }
 
-    
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    
     const newUser = await User.create({
       fullName,
       email,
@@ -26,18 +34,21 @@ const createUser = async (req, res) => {
       phone,
       idCard,
       occupation,
-      adoptions
+      adoptions,
+      gender,
     });
 
-    res.status(201).json({ 
-      message: 'Usuario creado exitosamente',
-      object: newUser
+    res.status(201).json({
+      message: "Usuario creado exitosamente",
+      object: newUser,
     });
   } catch (error) {
-    res.status(500).json({ message: 'Error al crear el usuario', error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error al crear el usuario", error: error.message });
   }
 };
 
 module.exports = {
-  createUser
+  createUser,
 };
