@@ -2,6 +2,8 @@ const { User } =  require("../db");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
 
+const createJWT = require("../jwt")
+
 const getJWT = async (req, res) => {
     try {
         let {email, password} = req.body;
@@ -19,10 +21,7 @@ const getJWT = async (req, res) => {
             return res.status(400).json({ error: "Contraseña Incorrecta" });
         }
 
-        const token = jwt.sign({
-            userID: user.id,
-            isAdmin: user.isAdmin,
-        }, "secret-key") //ToDo change secret key and move to .env
+        let token = createJWT(user)
 
         res.status(200).json({token});
     } catch (error) {

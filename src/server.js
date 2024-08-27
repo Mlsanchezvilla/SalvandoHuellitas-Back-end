@@ -16,6 +16,7 @@ const listRequest = require("./controllers/listRequest");
 const listReview = require("./controllers/listReview");
 const getJWT = require("./controllers/getJWT");
 const {createUser} = require("./controllers/createUser");
+const {googleAuth} = require("./controllers/auth");
 
 
 const server = express(); //*creates server
@@ -165,26 +166,7 @@ server.get("/requests/", async (req, res) => {
     }
 })
 
-server.post('/auth/google', async (req, res) => {
-    try {
-        const {token} = req.body;
-        console.log(token)
-        const response = await axios.get(
-            'https://oauth2.googleapis.com/tokeninfo',
-            {
-                params:{
-                    access_token: token
-                }
-            }
-        );
-        console.log(response);
-    } catch (error){
-        console.log(error.response)
-        res.status(400).json({ error: error.message });
-    }
-
-
-});
+server.post('/auth/google', googleAuth);
 
 //user authentication with email and password
 server.post("/auth/", getJWT)
