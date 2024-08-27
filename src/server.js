@@ -1,13 +1,11 @@
 const express = require("express");
-const router = require ("./routes")
+const router = require("./routes");
 const morgan = require("morgan");
 const cors = require("cors");
 const session = require("express-session");
 const passport = require("passport");
 const bodyParser = require('body-parser');
 const axios = require('axios');
-
-// Importar controladores y rutas
 const createPet = require("./controllers/createPet");
 const listPet = require("./controllers/listPet");
 const getPet = require("./controllers/getPet");
@@ -19,22 +17,26 @@ const {createUser} = require("./controllers/createUser");
 const {googleAuth} = require("./controllers/auth");
 
 
+
 const server = express(); //*creates server
 
+
 const {  findOrCreateUser  } = require("./controllers/createUser");
+
 const { createPetCloudinary } = require("./controllers/createPetCloudinary");
 // Configuración de estrategias de autenticación
 const { Strategy: GoogleStrategy } = require("passport-google-oauth20");
 //const { Strategy: FacebookStrategy } = require("passport-facebook");
 // import {} from "passport-google-oauth20"
 
-
 server.use(morgan("dev"));
 server.use(cors());
 server.use(express.json());
-server.use(bodyParser.json({ limit: '10mb' }));
-server.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
-server.use(session({ secret: "your_secret_key", resave: false, saveUninitialized: true }));
+server.use(bodyParser.json({ limit: "10mb" }));
+server.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
+server.use(
+  session({ secret: "your_secret_key", resave: false, saveUninitialized: true })
+);
 server.use(passport.initialize());
 server.use(passport.session());
 
@@ -42,31 +44,41 @@ server.use(router);
 
 // Serialización y deserialización de usuario
 passport.serializeUser((user, done) => {
-    done(null, user.id);
+  done(null, user.id);
 });
 
 passport.deserializeUser(async (id, done) => {
-    try {
-        const user = await findOrCreateUser({ id });
-        done(null, user);
-    } catch (err) {
-        done(err, null);
-    }
+  try {
+    const user = await findOrCreateUser({ id });
+    done(null, user);
+  } catch (err) {
+    done(err, null);
+  }
 });
 
 // Configuración de estrategias de Passport
-passport.use(new GoogleStrategy({
-    clientID: "GOOGLE_CLIENT_ID",
-    clientSecret: "GOOGLE_CLIENT_SECRET",
-    callbackURL: "http://localhost:3001/auth/google/callback"
-}, async (accessToken, refreshToken, profile, done) => {
-    try {
-        const user = await findOrCreateUser({ googleId: profile.id, fullName: profile.displayName, email: profile.emails[0].value });
+
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: "GOOGLE_CLIENT_ID",
+      clientSecret: "GOOGLE_CLIENT_SECRET",
+      callbackURL: "http://localhost:3001/auth/google/callback",
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        const user = await findOrCreateUser({
+          googleId: profile.id,
+          fullName: profile.displayName,
+          email: profile.emails[0].value,
+        });
         return done(null, user);
-    } catch (err) {
+      } catch (err) {
         return done(err, null);
+      }
     }
-}));
+  )
+);
 
 // passport.use(new FacebookStrategy({
 //     clientID: "YOUR_FACEBOOK_CLIENT_ID",
@@ -83,10 +95,17 @@ passport.use(new GoogleStrategy({
 // }));
 
 // Rutas de autenticación
-server.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
-server.get("/auth/google/callback", passport.authenticate("google", { failureRedirect: "/login" }), (req, res) => {
+server.get(
+  "/auth/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+server.get(
+  "/auth/google/callback",
+  passport.authenticate("google", { failureRedirect: "/login" }),
+  (req, res) => {
     res.redirect("/"); // Redirige a la página principal o a donde desees
-});
+  }
+);
 
 // server.get("/auth/facebook", passport.authenticate("facebook", { scope: ["email"] }));
 // server.get("/auth/facebook/callback", passport.authenticate("facebook", { failureRedirect: "/login" }), (req, res) => {
@@ -94,7 +113,7 @@ server.get("/auth/google/callback", passport.authenticate("google", { failureRed
 // });
 
 // Rutas principales
-server.use('/api', router); // Asegúrate de usar el prefijo adecuado para tus rutas
+server.use("/api", router); // Asegúrate de usar el prefijo adecuado para tus rutas
 
 // Crear una nueva mascota
 server.post("/pets/", async (req, res) => {
@@ -127,13 +146,10 @@ server.get("/pets/:idPet", async (req, res) => {
   }
 });
 
-
-
-
 //* create review
 
 //*create user
-server.post("/users/", createUser)
+server.post("/users/", createUser);
 
 // Crear reseña
 server.post("/reviews/", async (req, res) => {
@@ -155,9 +171,24 @@ server.get("/reviews/", async (req, res) => {
   }
 });
 
-
 // Listar solicitudes
 server.get("/requests/", async (req, res) => {
+
+  try {
+    const requestList = await listRequest(req.query);
+    res.status(200).json(requestList);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+
+  server.get("/auth/google"),
+    async (req, res) => {
+      const page = parseInt(req.query.page, 10) || 1;
+      const limit = parseInt(req.query.limit, 10) || 10;
+      const offset = (page - 1) * limit;
+    };
+});
+
     try {
         const requestList = await listRequest(req.query);
         res.status(200).json(requestList);
@@ -168,10 +199,9 @@ server.get("/requests/", async (req, res) => {
 
 server.post('/auth/google', googleAuth);
 
+
 //user authentication with email and password
-server.post("/auth/", getJWT)
-
-
+server.post("/auth/", getJWT);
 
 const multer = require("multer");
 const storage = multer.memoryStorage();
@@ -186,4 +216,3 @@ server.post(
 );
 
 module.exports = server; //*exports server
-
