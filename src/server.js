@@ -4,8 +4,8 @@ const morgan = require("morgan");
 const cors = require("cors");
 const session = require("express-session");
 const passport = require("passport");
-const bodyParser = require('body-parser');
-const axios = require('axios');
+const bodyParser = require("body-parser");
+const axios = require("axios");
 const createPet = require("./controllers/createPet");
 const listPet = require("./controllers/listPet");
 const getPet = require("./controllers/getPet");
@@ -13,15 +13,12 @@ const createReview = require("./controllers/createReview");
 const listRequest = require("./controllers/listRequest");
 const listReview = require("./controllers/listReview");
 const getJWT = require("./controllers/getJWT");
-const {createUser} = require("./controllers/createUser");
-const {googleAuth} = require("./controllers/auth");
-
-
+const { createUser } = require("./controllers/createUser");
+const { googleAuth } = require("./controllers/auth");
 
 const server = express(); //*creates server
 
-
-const {  findOrCreateUser  } = require("./controllers/createUser");
+const { findOrCreateUser } = require("./controllers/createUser");
 
 const { createPetCloudinary } = require("./controllers/createPetCloudinary");
 // Configuración de estrategias de autenticación
@@ -30,6 +27,16 @@ const { Strategy: GoogleStrategy } = require("passport-google-oauth20");
 // import {} from "passport-google-oauth20"
 
 server.use(morgan("dev"));
+server.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
+  next();
+});
 server.use(cors());
 server.use(express.json());
 server.use(bodyParser.json({ limit: "10mb" }));
@@ -173,7 +180,6 @@ server.get("/reviews/", async (req, res) => {
 
 // Listar solicitudes
 server.get("/requests/", async (req, res) => {
-
   try {
     const requestList = await listRequest(req.query);
     res.status(200).json(requestList);
@@ -187,18 +193,16 @@ server.get("/requests/", async (req, res) => {
       const limit = parseInt(req.query.limit, 10) || 10;
       const offset = (page - 1) * limit;
     };
+
+  try {
+    const requestList = await listRequest(req.query);
+    res.status(200).json(requestList);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 });
 
-    try {
-        const requestList = await listRequest(req.query);
-        res.status(200).json(requestList);
-    } catch (error) {
-        res.status(400).json({ error: error.message });
-    }
-})
-
-server.post('/auth/google', googleAuth);
-
+server.post("/auth/google", googleAuth);
 
 //user authentication with email and password
 server.post("/auth/", getJWT);
