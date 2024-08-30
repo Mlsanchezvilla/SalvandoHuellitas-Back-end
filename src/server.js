@@ -13,18 +13,18 @@ const createReview = require("./controllers/createReview");
 const listRequest = require("./controllers/listRequest");
 const listReview = require("./controllers/listReview");
 const getJWT = require("./controllers/getJWT");
-const { createUser } = require("./controllers/createUser");
-const { googleAuth } = require("./controllers/auth");
+const {createUser} = require("./controllers/createUser");
+const {googleAuth} = require("./controllers/auth");
+const sgMail = require('./services/sendgrid')
 
 const server = express(); //*creates server
 
 const { findOrCreateUser } = require("./controllers/createUser");
 
 const { createPetCloudinary } = require("./controllers/createPetCloudinary");
-// Configuración de estrategias de autenticación
+
 const { Strategy: GoogleStrategy } = require("passport-google-oauth20");
-//const { Strategy: FacebookStrategy } = require("passport-facebook");
-// import {} from "passport-google-oauth20"
+
 
 server.use(morgan("dev"));
 server.use((req, res, next) => {
@@ -48,6 +48,36 @@ server.use(passport.initialize());
 server.use(passport.session());
 
 server.use(router);
+
+server.use(express.json());
+
+
+
+server.post('/api/mail', async(req, res) => {
+    const { to, subject, text, html, sandboxMode = false } = req.body;
+
+    const msg = {
+      to,
+      from: 'cinthyasem@gmail.com',
+      subject,
+      text,
+      html,
+      mail_settings: {
+        sandbox_mode:{
+          enable: sandboxMode
+        }
+      }
+    };
+
+    try{
+      await sgMail.send(msg);
+    }catch(err){
+     return res.status(err.code).send(err.message);
+    }
+
+    res.send(201).send({ success: true });
+});
+
 
 // Serialización y deserialización de usuario
 passport.serializeUser((user, done) => {
@@ -87,24 +117,16 @@ passport.use(
   )
 );
 
-// passport.use(new FacebookStrategy({
-//     clientID: "YOUR_FACEBOOK_CLIENT_ID",
-//     clientSecret: "YOUR_FACEBOOK_CLIENT_SECRET",
-//     callbackURL: "/auth/facebook/callback",
-//     profileFields: ["id", "displayName", "emails"]
-// }, async (accessToken, refreshToken, profile, done) => {
-//     try {
-//         const user = await findOrCreateUser({ facebookId: profile.id, fullName: profile.displayName, email: profile.emails[0].value });
-//         return done(null, user);
-//     } catch (err) {
-//         return done(err, null);
-//     }
-// }));
+
 
 // Rutas de autenticación
 server.get(
   "/auth/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
+  passport.authenticate("google", { scope: ["profile", "email"] }),
+  (req, res) => {
+    console.log(req.user);
+  }
+
 );
 server.get(
   "/auth/google/callback",
@@ -114,10 +136,6 @@ server.get(
   }
 );
 
-// server.get("/auth/facebook", passport.authenticate("facebook", { scope: ["email"] }));
-// server.get("/auth/facebook/callback", passport.authenticate("facebook", { failureRedirect: "/login" }), (req, res) => {
-//     res.redirect("/"); // Redirige a la página principal o a donde desees
-// });
 
 // Rutas principales
 server.use("/api", router); // Asegúrate de usar el prefijo adecuado para tus rutas
@@ -186,21 +204,8 @@ server.get("/requests/", async (req, res) => {
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
+})
 
-  server.get("/auth/google"),
-    async (req, res) => {
-      const page = parseInt(req.query.page, 10) || 1;
-      const limit = parseInt(req.query.limit, 10) || 10;
-      const offset = (page - 1) * limit;
-    };
-
-  try {
-    const requestList = await listRequest(req.query);
-    res.status(200).json(requestList);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
 
 server.post("/auth/google", googleAuth);
 
@@ -208,6 +213,7 @@ server.post("/auth/google", googleAuth);
 server.post("/auth/", getJWT);
 
 const multer = require("multer");
+const mail = require("./services/sendgrid");
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
