@@ -1,23 +1,17 @@
-const { Pet } = require("../db");
 const { Op } = require('sequelize');
+const daoPet = require("../dao/pets")
 
 
-const listPet = async (queryParams) => {
-    let {search, page, status, species, age, size, energyLevel, okWithPets, okWithKids, gender} = queryParams;
+const listPets = async (req, res) => {
+  try {
+    let {search, page, status, species, age, size, energyLevel, okWithPets, okWithKids, gender} = req.query;
 
     // rebuild query with variables to filter
     let query = {status, species, age, size, energyLevel, okWithPets, okWithKids, gender}
 
-    // Remove undefined values from query to avoid filter issues
-    for (let queryKey in query) {
-        if (!query[queryKey]){
-            delete query[queryKey]
-        }
-    }
-
     // Pagination Variables
-    page = parseInt(page);
     const itemsPerPage = 12;
+    page = parseInt(page);
 
     // If search is not undefined we should manage that value on query
     if (search){
@@ -29,19 +23,21 @@ const listPet = async (queryParams) => {
         ]
     }
 
-    //* lists all existing pets
-    let petsCount = await Pet.findAndCountAll({
-        where: query,
-        limit: itemsPerPage,
-        offset: itemsPerPage * (page-1),
-    });
+    let petsCount = await daoPet.getPaginatedPets(
+        query,
+        itemsPerPage,
+        itemsPerPage * (page-1)
+    )
 
-    return {
+    res.status(200).json({
         page: page,
         totalPages: Math.ceil(petsCount.count / itemsPerPage),
         results: petsCount.rows,
-    };
-};
+    });
 
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
 
-module.exports = listPet;
+module.exports = {listPets}
