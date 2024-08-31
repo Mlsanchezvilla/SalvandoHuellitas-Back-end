@@ -5,7 +5,7 @@ const cors = require("cors");
 const session = require("express-session");
 const passport = require("passport");
 const bodyParser = require("body-parser");
-const axios = require("axios");
+require('dotenv').config();
 const createPet = require("./controllers/createPet");
 const listPet = require("./controllers/listPet");
 const getPet = require("./controllers/getPet");
@@ -51,32 +51,27 @@ server.use(router);
 
 server.use(express.json());
 
-
-
 server.post('/api/mail', async(req, res) => {
-    const { to, subject, text, html, sandboxMode = false } = req.body;
+  const { to, subject, text, html} = req.body;
 
-    const msg = {
-      to,
-      from: 'cinthyasem@gmail.com',
-      subject,
-      text,
-      html,
-      mail_settings: { //esto es para hacer test sin que nos consuma cada que probemos nuestros creditos en sendgrid
-        sandbox_mode:{
-          enable: sandboxMode
-        }
-      }
-    };
+  const msg = {
+    to,
+    from: 'cinthyasem@gmail.com',
+    subject,
+    text,
+    html,
+    
+  };
 
-    try{
-      await sgMail.send(msg);
-    }catch(err){
-     return res.status(err.code).send(err.message);
-    }
+  try{
+    await sgMail.send(msg);
+  }catch(err){
+   return res.status(err.code).send(err.message);
+  }
 
-    res.status(201).send({ success: true });
+  res.status(201).send({ success: true });
 });
+
 
 
 // Serialización y deserialización de usuario
@@ -174,6 +169,7 @@ server.get("/pets/:idPet", async (req, res) => {
 //* create review
 
 //*create user
+console.log("Configurando la ruta /users/");
 server.post("/users/", createUser);
 
 // Crear reseña

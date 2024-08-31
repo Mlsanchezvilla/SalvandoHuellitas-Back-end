@@ -11,7 +11,7 @@ it('Can send emails with valid inputs', async() =>{
              subject: 'Subject',
              text: 'somo random text',
              html: '<strong>Some random html code</strong>',
-             sandboxMode: true
+             
             })
             .expect(201);
     });
@@ -25,7 +25,7 @@ it('Can send emails with valid inputs', async() =>{
              subject: '',
              text: 'somo random text',
              html: '<strong>Some random html code</strong>',
-             sandboxMode: true
+             
             })
             .expect(400);
     });
