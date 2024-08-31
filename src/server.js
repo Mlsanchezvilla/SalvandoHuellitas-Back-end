@@ -3,25 +3,18 @@ const router = require("./routes");
 const morgan = require("morgan");
 const cors = require("cors");
 const session = require("express-session");
-const passport = require("passport");
 const bodyParser = require("body-parser");
-const axios = require("axios");
 const {listPets, getPet, createPet} = require("./controllers/pets");
 const createReview = require("./controllers/createReview");
 const listRequest = require("./controllers/listRequest");
 const listReview = require("./controllers/listReview");
 const getJWT = require("./controllers/getJWT");
-const { createUser } = require("./controllers/createUser");
+const { createUser } = require("./controllers/users");
 const { googleAuth } = require("./controllers/auth");
 
 const server = express(); //*creates server
 
-const { findOrCreateUser } = require("./controllers/createUser");
 
-// Configuración de estrategias de autenticación
-const { Strategy: GoogleStrategy } = require("passport-google-oauth20");
-//const { Strategy: FacebookStrategy } = require("passport-facebook");
-// import {} from "passport-google-oauth20"
 
 server.use(morgan("dev"));
 server.use((req, res, next) => {
