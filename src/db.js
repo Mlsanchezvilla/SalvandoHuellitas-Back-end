@@ -6,10 +6,7 @@ const path = require("path");
 
 const {
   //* defines variables to access the DB
-  DB_USER,
-  DB_PASSWORD,
-  DB_HOST,
-  DB_DEPLOY,
+  DB_URL
 } = process.env; //*
 
 //* imports functions for model creation (tables)
@@ -19,12 +16,7 @@ const ReviewFunction = require("./models/Review");
 const RequestFunction = require("./models/Request");
 
 //* connection to the DB
-// const sequelize = new Sequelize(`postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/huellitas`, {
-//   logging: false, // set to console.log to see the raw SQL queries
-//   native: false, // lets Sequelize know we can use pg-native for ~30% more speed
-// });
-
-const sequelize = new Sequelize(DB_DEPLOY, {
+const sequelize = new Sequelize(DB_URL, {
   logging: false, // set to console.log to see the raw SQL queries
   native: false, // lets Sequelize know we can use pg-native for ~30% more speed
 });
