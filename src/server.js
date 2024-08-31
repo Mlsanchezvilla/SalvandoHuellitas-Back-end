@@ -41,8 +41,7 @@ server.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
 server.use(
   session({ secret: "your_secret_key", resave: false, saveUninitialized: true })
 );
-server.use(passport.initialize());
-server.use(passport.session());
+
 
 server.use(router);
 
@@ -56,24 +55,25 @@ const upload = multer({ storage: storage });
 server.use("/api", router); // Asegúrate de usar el prefijo adecuado para tus rutas
 
 
+// Auth
+server.post("/auth/google/", googleAuth);
+server.post("/auth/", getJWT);
+
+
+// Pets endpoints
 server.get("/pets/", listPets);
 server.get("/pets/:petId/", getPet);
 server.post(
-  "/pets/",
-  upload.fields([
+  "/pets/", upload.fields([
     { name: "photo", maxCount: 1 }, // Manejar un archivo con el campo 'image'
   ]),
   createPet
 );
-server.post("/auth/google/", googleAuth);
-server.post("/auth/", getJWT);
 
-//* create review
-
-//*create user
+// Users
 server.post("/users/", createUser);
 
-// Crear reseña
+// Reviews
 server.post("/reviews/", async (req, res) => {
   try {
     const newReview = await createReview(req.body);
@@ -83,7 +83,6 @@ server.post("/reviews/", async (req, res) => {
   }
 });
 
-// Listar reseñas
 server.get("/reviews/", async (req, res) => {
   try {
     const reviewList = await listReview(req.query);
@@ -93,7 +92,7 @@ server.get("/reviews/", async (req, res) => {
   }
 });
 
-// Listar solicitudes
+// Requests
 server.get("/requests/", async (req, res) => {
   try {
     const requestList = await listRequest(req.query);
@@ -101,26 +100,7 @@ server.get("/requests/", async (req, res) => {
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
-
-  server.get("/auth/google"),
-    async (req, res) => {
-      const page = parseInt(req.query.page, 10) || 1;
-      const limit = parseInt(req.query.limit, 10) || 10;
-      const offset = (page - 1) * limit;
-    };
-
-  try {
-    const requestList = await listRequest(req.query);
-    res.status(200).json(requestList);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
 });
-
-
-
-
-
 
 
 module.exports = server; //*exports server
