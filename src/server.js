@@ -15,7 +15,7 @@ const listReview = require("./controllers/listReview");
 const getJWT = require("./controllers/getJWT");
 const { createUser } = require("./controllers/createUser");
 const { googleAuth } = require("./controllers/auth");
-
+const createRequest = require("./controllers/createRequest");
 const server = express(); //*creates server
 
 const { findOrCreateUser } = require("./controllers/createUser");
@@ -87,19 +87,6 @@ passport.use(
   )
 );
 
-// passport.use(new FacebookStrategy({
-//     clientID: "YOUR_FACEBOOK_CLIENT_ID",
-//     clientSecret: "YOUR_FACEBOOK_CLIENT_SECRET",
-//     callbackURL: "/auth/facebook/callback",
-//     profileFields: ["id", "displayName", "emails"]
-// }, async (accessToken, refreshToken, profile, done) => {
-//     try {
-//         const user = await findOrCreateUser({ facebookId: profile.id, fullName: profile.displayName, email: profile.emails[0].value });
-//         return done(null, user);
-//     } catch (err) {
-//         return done(err, null);
-//     }
-// }));
 
 // Rutas de autenticación
 server.get(
@@ -114,10 +101,7 @@ server.get(
   }
 );
 
-// server.get("/auth/facebook", passport.authenticate("facebook", { scope: ["email"] }));
-// server.get("/auth/facebook/callback", passport.authenticate("facebook", { failureRedirect: "/login" }), (req, res) => {
-//     res.redirect("/"); // Redirige a la página principal o a donde desees
-// });
+
 
 // Rutas principales
 server.use("/api", router); // Asegúrate de usar el prefijo adecuado para tus rutas
@@ -153,7 +137,7 @@ server.get("/pets/:idPet", async (req, res) => {
   }
 });
 
-//* create review
+
 
 //*create user
 server.post("/users/", createUser);
@@ -218,5 +202,23 @@ server.post(
   ]),
   createPetCloudinary
 );
+
+// Actualizar una solicitud de adopción
+server.patch("/requests/:id", async (req, res) => {
+  try {
+      await updateRequest(req, res);
+  } catch (error) {
+      res.status(500).json({ message: 'Error en la actualización de la solicitud', error });
+  }
+});
+
+server.post("/requests/", async (req, res) => {
+  try {
+    const newRequest = await createRequest(req.body);
+    res.status(201).json(newRequest);
+  } catch (error) {
+    res.status(400).json({ message: 'Error al crear la solicitud', error });
+  }
+});
 
 module.exports = server; //*exports server
