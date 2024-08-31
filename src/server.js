@@ -214,6 +214,7 @@ server.patch("/requests/:id", async (req, res) => {
 
 server.post("/requests/", async (req, res) => {
   try {
+    console.log("Ruta /requests/ fue llamada");
     const newRequest = await createRequest(req.body);
     res.status(201).json(newRequest);
   } catch (error) {
