@@ -6,7 +6,7 @@ const session = require("express-session");
 const passport = require("passport");
 const bodyParser = require("body-parser");
 require('dotenv').config();
-const {listPets, getPet} = require("./controllers/pets");
+const {listPets, getPet, createPet} = require("./controllers/pets");
 const createReview = require("./controllers/createReview");
 const listRequest = require("./controllers/listRequest");
 const listReview = require("./controllers/listReview");
@@ -19,7 +19,6 @@ const server = express(); //*creates server
 
 const { findOrCreateUser } = require("./controllers/createUser");
 
-const { createPetCloudinary } = require("./controllers/createPetCloudinary");
 
 const { Strategy: GoogleStrategy } = require("passport-google-oauth20");
 
@@ -48,7 +47,13 @@ server.use(passport.session());
 server.use(router);
 
 
+
 server.use(express.json());
+
+const multer = require("multer");
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
 
 server.post('/api/mail', async(req, res) => {
   const { to, subject, text, html} = req.body;
@@ -77,7 +82,16 @@ server.use("/api", router); // Asegúrate de usar el prefijo adecuado para tus r
 
 
 server.get("/pets/", listPets);
-server.get("/pets/:petId", getPet);
+server.get("/pets/:petId/", getPet);
+server.post(
+  "/pets/",
+  upload.fields([
+    { name: "photo", maxCount: 1 }, // Manejar un archivo con el campo 'image'
+  ]),
+  createPet
+);
+server.post("/auth/google/", googleAuth);
+server.post("/auth/", getJWT);
 
 //* create review
 
@@ -115,23 +129,5 @@ server.get("/requests/", async (req, res) => {
   }
 })
 
-
-server.post("/auth/google", googleAuth);
-
-//user authentication with email and password
-server.post("/auth/", getJWT);
-
-const multer = require("multer");
-const mail = require("./services/sendgrid");
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
-
-server.post(
-  "/petcloud/",
-  upload.fields([
-    { name: "image", maxCount: 1 }, // Manejar un archivo con el campo 'image'
-  ]),
-  createPetCloudinary
-);
 
 module.exports = server; //*exports server

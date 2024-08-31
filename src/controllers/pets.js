@@ -1,5 +1,6 @@
 const { Op } = require('sequelize');
-const daoPet = require("../dao/pets")
+const {Pet} = require("../db");
+const uploadImageStreamCloudinary = require("../config/uploadImageStreamCloudinary");
 
 
 const listPets = async (req, res) => {
@@ -8,6 +9,12 @@ const listPets = async (req, res) => {
 
     // rebuild query with variables to filter
     let query = {status, species, age, size, energyLevel, okWithPets, okWithKids, gender}
+
+    for (let queryKey in query) {
+        if (!query[queryKey]){
+            delete query[queryKey]
+        }
+    }
 
     // Pagination Variables
     const itemsPerPage = 12;
@@ -23,11 +30,11 @@ const listPets = async (req, res) => {
         ]
     }
 
-    let petsCount = await daoPet.getPaginatedPets(
-        query,
-        itemsPerPage,
-        itemsPerPage * (page-1)
-    )
+    let petsCount = await Pet.findAndCountAll({
+        where: query,
+        limit: itemsPerPage,
+        offset: itemsPerPage * (page-1),
+    });
 
     res.status(200).json({
         page: page,
@@ -44,7 +51,7 @@ const listPets = async (req, res) => {
 const getPet = async (req, res) => {
   const { petId } = req.params;
   try {
-    const petFound = await daoPet.getById(petId);
+    const petFound = await Pet.findByPk(petId);
     res.status(200).json(petFound);
   } catch (error) {
     res.status(401).json({ error: error.message });
@@ -52,4 +59,32 @@ const getPet = async (req, res) => {
 }
 
 
-module.exports = {listPets, getPet}
+const createPet = async (req, res) => {
+  try {
+    const file = req.files.photo[0];
+    const buffer = file.buffer;
+    const result = await uploadImageStreamCloudinary(buffer)
+    const newPet = await Pet.create({
+          name: req.body.name,
+          photo: result.secure_url,
+          status: req.body.status,
+          species: req.body.species,
+          age: req.body.age,
+          size: req.body.size,
+          gender: req.body.gender,
+          breed: req.body.breed,
+          energyLevel: req.body.energyLevel,
+          okWithPets: req.body.okWithPets,
+          okWithKids: req.body.okWithKids,
+          history: req.body.history,
+        });
+    res.status(201).json({
+      message: "Mascota creada exitosamente",
+      data: newPet,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error al crear la mascota", error: error.message });
+  }
+};
+
+module.exports = {listPets, getPet, createPet}

@@ -1,6 +1,7 @@
 const uploadImageStreamCloudinary = require("../config/uploadImageStreamCloudinary");
 const { Pet } = require("../db");
 
+
 const createPetCloudinary = async (req, res) => {
   try {
     const file = req.files.image[0];
