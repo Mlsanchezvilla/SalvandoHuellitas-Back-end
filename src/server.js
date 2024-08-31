@@ -41,8 +41,7 @@ server.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
 server.use(
   session({ secret: "your_secret_key", resave: false, saveUninitialized: true })
 );
-server.use(passport.initialize());
-server.use(passport.session());
+
 
 server.use(router);
 
@@ -81,25 +80,25 @@ server.post('/api/mail', async(req, res) => {
 server.use("/api", router); // Asegúrate de usar el prefijo adecuado para tus rutas
 
 
+// Auth
+server.post("/auth/google/", googleAuth);
+server.post("/auth/", getJWT);
+
+
+// Pets endpoints
 server.get("/pets/", listPets);
 server.get("/pets/:petId/", getPet);
 server.post(
-  "/pets/",
-  upload.fields([
+  "/pets/", upload.fields([
     { name: "photo", maxCount: 1 }, // Manejar un archivo con el campo 'image'
   ]),
   createPet
 );
-server.post("/auth/google/", googleAuth);
-server.post("/auth/", getJWT);
 
-//* create review
 
-//*create user
-console.log("Configurando la ruta /users/");
 server.post("/users/", createUser);
 
-// Crear reseña
+// Reviews
 server.post("/reviews/", async (req, res) => {
   try {
     const newReview = await createReview(req.body);
@@ -109,7 +108,6 @@ server.post("/reviews/", async (req, res) => {
   }
 });
 
-// Listar reseñas
 server.get("/reviews/", async (req, res) => {
   try {
     const reviewList = await listReview(req.query);
@@ -119,7 +117,7 @@ server.get("/reviews/", async (req, res) => {
   }
 });
 
-// Listar solicitudes
+// Requests
 server.get("/requests/", async (req, res) => {
   try {
     const requestList = await listRequest(req.query);
