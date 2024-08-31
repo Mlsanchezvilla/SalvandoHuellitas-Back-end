@@ -6,8 +6,7 @@ const session = require("express-session");
 const passport = require("passport");
 const bodyParser = require("body-parser");
 const axios = require("axios");
-const createPet = require("./controllers/createPet");
-const listPet = require("./controllers/listPet");
+const {listPets} = require("./controllers/pets");
 const getPet = require("./controllers/getPet");
 const createReview = require("./controllers/createReview");
 const listRequest = require("./controllers/listRequest");
@@ -49,98 +48,13 @@ server.use(passport.session());
 
 server.use(router);
 
-// Serialización y deserialización de usuario
-passport.serializeUser((user, done) => {
-  done(null, user.id);
-});
-
-passport.deserializeUser(async (id, done) => {
-  try {
-    const user = await findOrCreateUser({ id });
-    done(null, user);
-  } catch (err) {
-    done(err, null);
-  }
-});
-
-// Configuración de estrategias de Passport
-
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: "GOOGLE_CLIENT_ID",
-      clientSecret: "GOOGLE_CLIENT_SECRET",
-      callbackURL: "http://localhost:3001/auth/google/callback",
-    },
-    async (accessToken, refreshToken, profile, done) => {
-      try {
-        const user = await findOrCreateUser({
-          googleId: profile.id,
-          fullName: profile.displayName,
-          email: profile.emails[0].value,
-        });
-        return done(null, user);
-      } catch (err) {
-        return done(err, null);
-      }
-    }
-  )
-);
-
-// passport.use(new FacebookStrategy({
-//     clientID: "YOUR_FACEBOOK_CLIENT_ID",
-//     clientSecret: "YOUR_FACEBOOK_CLIENT_SECRET",
-//     callbackURL: "/auth/facebook/callback",
-//     profileFields: ["id", "displayName", "emails"]
-// }, async (accessToken, refreshToken, profile, done) => {
-//     try {
-//         const user = await findOrCreateUser({ facebookId: profile.id, fullName: profile.displayName, email: profile.emails[0].value });
-//         return done(null, user);
-//     } catch (err) {
-//         return done(err, null);
-//     }
-// }));
-
-// Rutas de autenticación
-server.get(
-  "/auth/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
-);
-server.get(
-  "/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "/login" }),
-  (req, res) => {
-    res.redirect("/"); // Redirige a la página principal o a donde desees
-  }
-);
-
-// server.get("/auth/facebook", passport.authenticate("facebook", { scope: ["email"] }));
-// server.get("/auth/facebook/callback", passport.authenticate("facebook", { failureRedirect: "/login" }), (req, res) => {
-//     res.redirect("/"); // Redirige a la página principal o a donde desees
-// });
-
 // Rutas principales
 server.use("/api", router); // Asegúrate de usar el prefijo adecuado para tus rutas
 
-// Crear una nueva mascota
-server.post("/pets/", async (req, res) => {
-  try {
-    const newPet = await createPet(req.body);
-    res.status(200).json(newPet);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
+
 
 // Listar mascotas según filtros o consultas de búsqueda
-server.get("/pets/", async (req, res) => {
-  try {
-    const petList = await listPet(req.query);
-    res.status(200).json(petList);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
+server.get("/pets/", listPets);
 
 //* gets a pet by it's id
 server.get("/pets/:idPet", async (req, res) => {
