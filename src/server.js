@@ -3,7 +3,6 @@ const router = require("./routes");
 const morgan = require("morgan");
 const cors = require("cors");
 const session = require("express-session");
-const passport = require("passport");
 const bodyParser = require("body-parser");
 require('dotenv').config();
 const {listPets, getPet, createPet} = require("./controllers/pets");
@@ -16,12 +15,6 @@ const {googleAuth} = require("./controllers/auth");
 const sgMail = require('./services/sendgrid')
 
 const server = express(); //*creates server
-
-const { findOrCreateUser } = require("./controllers/createUser");
-
-
-const { Strategy: GoogleStrategy } = require("passport-google-oauth20");
-
 
 server.use(morgan("dev"));
 server.use((req, res, next) => {
