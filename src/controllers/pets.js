@@ -40,4 +40,16 @@ const listPets = async (req, res) => {
   }
 }
 
-module.exports = {listPets}
+
+const getPet = async (req, res) => {
+  const { petId } = req.params;
+  try {
+    const petFound = await daoPet.getById(petId);
+    res.status(200).json(petFound);
+  } catch (error) {
+    res.status(401).json({ error: error.message });
+  }
+}
+
+
+module.exports = {listPets, getPet}
