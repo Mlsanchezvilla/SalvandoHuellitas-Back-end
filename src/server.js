@@ -62,7 +62,7 @@ server.post('/api/mail', async(req, res) => {
       subject,
       text,
       html,
-      mail_settings: {
+      mail_settings: { //esto es para hacer test sin que nos consuma cada que probemos nuestros creditos en sendgrid
         sandbox_mode:{
           enable: sandboxMode
         }
@@ -75,7 +75,7 @@ server.post('/api/mail', async(req, res) => {
      return res.status(err.code).send(err.message);
     }
 
-    res.send(201).send({ success: true });
+    res.status(201).send({ success: true });
 });
 
 
