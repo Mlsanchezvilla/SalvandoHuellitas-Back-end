@@ -6,8 +6,7 @@ const session = require("express-session");
 const passport = require("passport");
 const bodyParser = require("body-parser");
 const axios = require("axios");
-const {listPets} = require("./controllers/pets");
-const getPet = require("./controllers/getPet");
+const {listPets, getPet} = require("./controllers/pets");
 const createReview = require("./controllers/createReview");
 const listRequest = require("./controllers/listRequest");
 const listReview = require("./controllers/listReview");
@@ -52,20 +51,8 @@ server.use(router);
 server.use("/api", router); // Asegúrate de usar el prefijo adecuado para tus rutas
 
 
-
-// Listar mascotas según filtros o consultas de búsqueda
 server.get("/pets/", listPets);
-
-//* gets a pet by it's id
-server.get("/pets/:idPet", async (req, res) => {
-  const petId = req.params.idPet;
-  try {
-    const petFound = await getPet(petId);
-    res.status(200).json(petFound);
-  } catch (error) {
-    res.status(401).json({ error: error.message });
-  }
-});
+server.get("/pets/:petId", getPet);
 
 //* create review
 
