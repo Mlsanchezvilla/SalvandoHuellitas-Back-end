@@ -16,6 +16,10 @@ const daoPet = {
             limit: limit,
             offset: offset,
         });
+    },
+
+    getById: async (id) => {
+        return await Pet.findByPk(id);
     }
 
 }
