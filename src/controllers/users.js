@@ -1,20 +1,25 @@
 const { User } = require("../db");
+const { getAuthUser } = require("../jwt");
 const bcrypt = require("bcrypt");
 const sgMail = require("../services/sendgrid"); // Import SendGrid
 
 const createUser = async (req, res) => {
-  // console.log("Entrando en createUser"); 
   try {
+    let isAdmin = false;
+
+    const user = await getAuthUser(req)
+    if(user?.isAdmin){
+      isAdmin = true;
+    }
+
     const {
       fullName,
       email,
       password,
-      age,
+      birthDate,
       phone,
       idCard,
       occupation,
-      adoptions,
-      gender,
     } = req.body;
 
     const existingUser = await User.findOne({
@@ -29,15 +34,14 @@ const createUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await User.create({
+      isAdmin,
       fullName,
       email,
       password: hashedPassword,
-      age,
+      birthDate,
       phone,
       idCard,
       occupation,
-      adoptions,
-      gender,
     });
 
     
@@ -78,5 +82,5 @@ const createUser = async (req, res) => {
 };
 
 module.exports = {
-  createUser,
+  createUser
 };
