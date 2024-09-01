@@ -26,6 +26,6 @@ function getAuthUser(request) {
     // Use Example:
     // const user = getAuthUser(req)
     // if(!user){throw new Error("Authentication needed")}
-    // if(user.isAdmin){}
+    // if(user?.isAdmin){}
 
 module.exports = {createJWT, getAuthUser};
