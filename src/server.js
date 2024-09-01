@@ -5,11 +5,11 @@ const cors = require("cors");
 const session = require("express-session");
 const bodyParser = require("body-parser");
 const {listPets, getPet, createPet} = require("./controllers/pets");
+const {listRequest, /*createRequest, updateRequest*/} = require("./controllers/requests");
+const { createUser } = require("./controllers/users");
 const createReview = require("./controllers/createReview");
-const listRequest = require("./controllers/listRequest");
 const listReview = require("./controllers/listReview");
 const getJWT = require("./controllers/getJWT");
-const { createUser } = require("./controllers/users");
 const { googleAuth } = require("./controllers/auth");
 
 const server = express(); //*creates server
@@ -44,13 +44,16 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 
+
 // Rutas principales
 server.use("/api", router); // Asegúrate de usar el prefijo adecuado para tus rutas
+
 
 
 // Auth
 server.post("/auth/google/", googleAuth);
 server.post("/auth/", getJWT);
+
 
 
 // Pets endpoints
@@ -63,8 +66,18 @@ server.post(
   createPet
 );
 
+
+
 // Users
 server.post("/users/", createUser);
+
+
+
+// Requests
+server.get("/requests/", listRequest);
+// server.patch("/requests/", updateRequest);
+
+
 
 // Reviews
 server.post("/reviews/", async (req, res) => {
@@ -85,15 +98,6 @@ server.get("/reviews/", async (req, res) => {
   }
 });
 
-// Requests
-server.get("/requests/", async (req, res) => {
-  try {
-    const requestList = await listRequest(req.query);
-    res.status(200).json(requestList);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
 
 
 module.exports = server; //*exports server

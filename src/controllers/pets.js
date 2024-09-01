@@ -48,6 +48,7 @@ const listPets = async (req, res) => {
 }
 
 
+
 const getPet = async (req, res) => {
   const { petId } = req.params;
   try {
@@ -57,6 +58,7 @@ const getPet = async (req, res) => {
     res.status(401).json({ error: error.message });
   }
 }
+
 
 
 const createPet = async (req, res) => {

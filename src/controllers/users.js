@@ -7,12 +7,11 @@ const createUser = async (req, res) => {
       fullName,
       email,
       password,
-      age,
+      birthDate,
       phone,
       idCard,
       occupation,
       adoptions,
-      gender,
     } = req.body;
 
     const existingUser = await User.findOne({
@@ -30,12 +29,11 @@ const createUser = async (req, res) => {
       fullName,
       email,
       password: hashedPassword,
-      age,
+      birthDate,
       phone,
       idCard,
       occupation,
       adoptions,
-      gender,
     });
 
     res.status(201).json({
