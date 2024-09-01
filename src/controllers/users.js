@@ -7,7 +7,7 @@ const createUser = async (req, res) => {
   try {
     let isAdmin = false;
 
-    const user = getAuthUser(req)
+    const user = await getAuthUser(req)
     if(user?.isAdmin){
       isAdmin = true;
     }

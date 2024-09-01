@@ -1,15 +1,17 @@
 const { Op } = require('sequelize');
 const {Pet} = require("../db");
+const { getAuthUser } = require("../jwt");
 const uploadImageStreamCloudinary = require("../config/uploadImageStreamCloudinary");
 
 
 const listPets = async (req, res) => {
   try {
-    let {search, page, status, species, age, size, energyLevel, okWithPets, okWithKids, gender} = req.query;
+    let {search, page, species, age, size, energyLevel, okWithPets, okWithKids, gender} = req.query;
 
     // rebuild query with variables to filter
-    let query = {status, species, age, size, energyLevel, okWithPets, okWithKids, gender}
+    let query = {status: "available", species, age, size, energyLevel, okWithPets, okWithKids, gender}
 
+    // checks for undefined or null query params and removes them from query
     for (let queryKey in query) {
         if (!query[queryKey]){
             delete query[queryKey]
@@ -89,4 +91,23 @@ const createPet = async (req, res) => {
   }
 };
 
-module.exports = {listPets, getPet, createPet}
+
+
+const deletePet = async (req, res) => {
+  const { petId } = req.params;
+  try {
+    const user = await getAuthUser(req)
+    if(!user){return res.status(403).json({ error: "Authentication required" })}
+    console.log(user)
+    if(!user.isAdmin){return res.status(403).json({ error: "Only admins can perform this action" })}
+
+    let pet = await Pet.findByPk(petId);
+    pet.status = "inactive";
+    await pet.save();
+    res.status(200).json({ message: "La mascota fue borrada"});
+  } catch (error) {
+    res.status(401).json({ error: error.message });
+  }
+}
+
+module.exports = {listPets, getPet, createPet, deletePet}
