@@ -6,7 +6,7 @@ const session = require("express-session");
 const bodyParser = require("body-parser");
 require('dotenv').config();
 const {listPets, getPet, createPet, deletePet} = require("./controllers/pets");
-const {listRequest, /*createRequest, updateRequest*/} = require("./controllers/requests");
+const {listRequest, createRequest, updateRequest} = require("./controllers/requests");
 const { createUser } = require("./controllers/users");
 const createReview = require("./controllers/createReview");
 const listReview = require("./controllers/listReview");
@@ -40,9 +40,6 @@ server.use(
 
 server.use(router);
 
-
-
-server.use(express.json());
 
 const multer = require("multer");
 const storage = multer.memoryStorage();
@@ -99,8 +96,12 @@ server.post("/users/", createUser);
 
 // Requests
 server.get("/requests/", listRequest);
-// server.patch("/requests/", updateRequest);
 
+// Ruta para actualizar una solicitud de adopción
+server.patch("/requests/:id", updateRequest);
+
+// Ruta para crear una nueva solicitud de adopción
+server.post("/requests", createRequest);
 
 
 // Reviews
@@ -122,15 +123,6 @@ server.get("/reviews/", async (req, res) => {
   }
 });
 
-// Requests
-server.get("/requests/", async (req, res) => {
-  try {
-    const requestList = await listRequest(req.query);
-    res.status(200).json(requestList);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-})
 
 
 module.exports = server; //*exports server
