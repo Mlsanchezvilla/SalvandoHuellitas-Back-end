@@ -58,7 +58,23 @@ const updateRequest = async (req, res) => {
 };
 
 
+
+const createRequest = async (req, res) => {
+  try {
+    console.log("Ruta /requests/ fue llamada");
+    console.log("Datos recibidos:", req.body);
+    
+    const newRequest = await Request.create(req.body);
+    res.status(201).json(newRequest);
+  } catch (error) {
+    res.status(400).json({ message: 'Error al crear la solicitud', error });
+  }
+};
+
+
+
+
 module.exports = {
   listRequest,
-  updateRequest
+  updateRequest, createRequest
 };
