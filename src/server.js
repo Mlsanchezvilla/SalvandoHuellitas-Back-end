@@ -10,13 +10,14 @@ const {listRequest, /*createRequest, updateRequest*/} = require("./controllers/r
 const { createUser } = require("./controllers/users");
 const createReview = require("./controllers/createReview");
 const listReview = require("./controllers/listReview");
-const getJWT = require("./controllers/getJWT");
-const {googleAuth} = require("./controllers/auth");
 const sgMail = require('./services/sendgrid')
+const { googleAuth, getJWT } = require("./controllers/auth");
 
 const server = express(); //*creates server
 
 server.use(morgan("dev"));
+
+// Test if this can be deleted
 server.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
   res.header("Access-Control-Allow-Credentials", "true");
@@ -34,6 +35,7 @@ server.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
 server.use(
   session({ secret: "your_secret_key", resave: false, saveUninitialized: true })
 );
+//
 
 
 server.use(router);
