@@ -6,11 +6,11 @@ const session = require("express-session");
 const bodyParser = require("body-parser");
 require('dotenv').config();
 const {listPets, getPet, createPet} = require("./controllers/pets");
+const {listRequest, /*createRequest, updateRequest*/} = require("./controllers/requests");
+const { createUser } = require("./controllers/users");
 const createReview = require("./controllers/createReview");
-const listRequest = require("./controllers/listRequest");
 const listReview = require("./controllers/listReview");
 const getJWT = require("./controllers/getJWT");
-const {createUser} = require("./controllers/createUser");
 const {googleAuth} = require("./controllers/auth");
 const sgMail = require('./services/sendgrid')
 
@@ -46,7 +46,6 @@ const multer = require("multer");
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-
 server.post('/api/mail', async(req, res) => {
   const { to, subject, text, html} = req.body;
 
@@ -73,9 +72,11 @@ server.post('/api/mail', async(req, res) => {
 server.use("/api", router); // Asegúrate de usar el prefijo adecuado para tus rutas
 
 
+
 // Auth
 server.post("/auth/google/", googleAuth);
 server.post("/auth/", getJWT);
+
 
 
 // Pets endpoints
@@ -90,6 +91,14 @@ server.post(
 
 
 server.post("/users/", createUser);
+
+
+
+// Requests
+server.get("/requests/", listRequest);
+// server.patch("/requests/", updateRequest);
+
+
 
 // Reviews
 server.post("/reviews/", async (req, res) => {
