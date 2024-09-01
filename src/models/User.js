@@ -30,8 +30,8 @@ module.exports = (sequelize) => {
     type: DataTypes.STRING,
     allowNull: true
   },
-  age: {
-    type: DataTypes.INTEGER,
+  birthDate: {
+    type: DataTypes.DATE,
     allowNull: true,
     validate: {
       min: 0
@@ -51,10 +51,8 @@ module.exports = (sequelize) => {
   },
   adoptions: {
     type: DataTypes.INTEGER,
-    allowNull: false,
     defaultValue: 0
   },
-
   googleId: {
     type: DataTypes.STRING,
     allowNull: true,
@@ -66,13 +64,6 @@ module.exports = (sequelize) => {
     unique: true
   },
 
-  gender: {
-    type: DataTypes.STRING,
-    validate: {
-      isIn: [['female', 'male']] 
-    }
-
-  }
   }, {
   timestamps: true, 
  });
