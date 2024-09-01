@@ -12,13 +12,13 @@ function createJWT (user){
 }
 
 // Receives a request (with a token in headers) returns an user
-function getAuthUser(request) {
+const getAuthUser = async (request) => {
     const authHeader = request.headers.authorization
     if (!authHeader) {return null}
     const [bearer, token] = authHeader.split(" ")
     try{
         const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY)
-        return User.findByPk(decoded.userID)
+        return await User.findByPk(decoded.userID)
     } catch (error){
         throw new Error("Invalid JWT")
     }

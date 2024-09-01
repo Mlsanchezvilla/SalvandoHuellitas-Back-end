@@ -1,6 +1,6 @@
 const axios = require("axios");
 const { User } =  require("../db");
-const createJWT = require("../jwt")
+const {createJWT} = require("../jwt")
 const bcrypt = require("bcrypt");
 
 
