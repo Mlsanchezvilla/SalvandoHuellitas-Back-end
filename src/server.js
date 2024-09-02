@@ -10,7 +10,7 @@ const {listRequest, createRequest, updateRequest} = require("./controllers/reque
 const { createUser } = require("./controllers/users");
 const createReview = require("./controllers/createReview");
 const listReview = require("./controllers/listReview");
-const sgMail = require('./services/sendgrid')
+
 const { googleAuth, getJWT } = require("./controllers/auth");
 
 const server = express(); //*creates server
@@ -94,7 +94,8 @@ server.post("/users/", createUser);
 
 
 
-// Requests
+//* Requests
+
 server.get("/requests/", listRequest);
 
 // Ruta para actualizar una solicitud de adopción

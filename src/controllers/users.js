@@ -44,15 +44,14 @@ const createUser = async (req, res) => {
       occupation,
     });
 
-    
     const msg = {
-      to:email,
+      to: email,
       from: 'cinthyasem@gmail.com',
-      subject: '¡Registro Completo!',
-      text: `Hola ${fullName}, tu registro se ha completado exitosamente.`,
-      html: `<strong>Hola ${fullName},</strong><br><br>Tu registro se ha completado exitosamente. ¡Gracias por Salvar más huellitas!`,
-      
+      templateId: 'd-0046d074e98948bf9d7b22ddda836e44',
+      dynamic_template_data: {},
     };
+    
+    
 
     
     // Envía el correo electrónico
