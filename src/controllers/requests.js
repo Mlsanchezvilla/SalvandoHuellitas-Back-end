@@ -1,6 +1,8 @@
-const { Request } = require("../db");
+const { Request, Pet, User} = require("../db");
 const {Op} = require("sequelize");
-const sgMail = require('../services/sendgrid'); 
+const sgMail = require('../services/sendgrid');
+const { getAuthUser } =  require("../jwt");
+
 
 
 const listRequest = async (req, res) => {
@@ -93,13 +95,36 @@ const updateRequest = async (req, res) => {
 
 const createRequest = async (req, res) => {
   try {
-    console.log("Ruta /requests/ fue llamada");
-    console.log("Datos recibidos:", req.body);
-    
-    const newRequest = await Request.create(req.body);
+    const user = await getAuthUser(req)
+    let petFound;
+    if(!user){
+        return res.status(403).json({message:'Authentication needed'})
+    }
+
+    const {id_pet, timeAvailable, space, totalHabitants, hasPets, hasKids, addedCondition} = req.body;
+    if(id_pet){
+        petFound = await Pet.findByPk(id_pet);
+        if(petFound.status !== "available"){
+            return res.status(404).json({message:'Pet is not available'});
+        }
+    }
+    const newRequest = await Request.create({
+        id_pet,
+        timeAvailable,
+        space,
+        totalHabitants,
+        hasPets,
+        hasKids,
+        addedCondition,
+        id_user: user.id,
+    });
+    if(petFound){
+        petFound.status = "onHold";
+        await petFound.save();
+    }
     res.status(201).json(newRequest);
   } catch (error) {
-    res.status(400).json({ message: 'Error al crear la solicitud', error });
+    res.status(400).json({ message: 'Error al crear la solicitud', error: error.message });
   }
 };
 
