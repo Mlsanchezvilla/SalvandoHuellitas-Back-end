@@ -7,7 +7,7 @@ const listRequest = async (req, res) => {
   try {
     // Obtain the search query parameter from query
       let query = req.query;
-    let search = query.search;
+      let search = query.search;
 
     // If search is not undefined, manage that value in the query
     if (search) {
@@ -30,9 +30,9 @@ const listRequest = async (req, res) => {
         offset: query.offset ? parseInt(query.offset) : undefined,
     });
     res.status(200).json(requests);
-  } catch (error) {
+    } catch (error) {
     res.status(400).json({ error: error.message });
-  }
+    }
 };
 
 
@@ -41,27 +41,38 @@ const updateRequest = async (req, res) => {
         const { id } = req.params;
         const { status, comment } = req.body;
 
-        // Encontrar la solicitud por su id
-        let request = await Request.findByPk(id);
+        
+          // Encontrar la solicitud por su id e incluir la información del usuario asociado
+        let request = await Request.findByPk(id, {
+          include: {
+              model: User, // Modelo del usuario
+              attributes: ['email', 'fullName'] // Campos que necesitas
+          }
+      });
+        
         if (!request) {
             return res.status(404).json({ message: 'Solicitud no encontrada' });
-        }
+          }
+
+
 
         // Actualizar el estado y comentario de la solicitud
         request.status = status;
         request.comment = comment;
         await request.save();
 
+
+
          // Enviar notificación por correo
-         const msg = {
-          to: request.user.email,
-          from: 'cinthyasem@gmail.com', // Cambia esto al correo que utilizas en SendGrid
-          subject: `Estado de tu solicitud de adopción: ${status}`,
-          text: `Hola ${request.user.fullName},\n\nTu solicitud de adopción ha sido ${status}.\nComentario: ${comment}\n\nGracias por utilizar nuestra plataforma.`,
-          html: `<p>Hola ${request.user.fullName},</p>
-                 <p>Tu solicitud de adopción ha sido <strong>${status}</strong>.</p>
-                 <p>Comentario: ${comment}</p>
-                 <p>Gracias por utilizar nuestra plataforma.</p>`
+      const msg = {
+            to: request.user.email,
+            from: 'cinthyasem@gmail.com', 
+            subject: `Estado de tu solicitud de adopción: ${status}`,
+            text: `Hola ${request.user.fullName},\n\nTu solicitud de adopción ha sido ${status}.\nComentario: ${comment}\n\nGracias por ayudarnos a Salvar Huellitas.`,
+            html: `<p>Hola ${request.user.fullName},</p>
+                  <p>Tu solicitud de adopción ha sido <strong>${status}</strong>.</p>
+                  <p>Comentario: ${comment}</p>
+                  <p>Gracias por ayudarnos a Salvar Huellitas.</p>`
       };
 
       try {
