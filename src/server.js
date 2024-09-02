@@ -89,7 +89,7 @@ server.post(
   createPet
 );
 
-// User
+// User endpoints
 server.post("/users/", createUser);
 
 
