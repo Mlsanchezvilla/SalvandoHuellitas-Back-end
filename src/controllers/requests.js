@@ -1,5 +1,6 @@
 const { Request } = require("../db");
 const {Op} = require("sequelize");
+const sgMail = require('../services/sendgrid'); 
 
 
 const listRequest = async (req, res) => {
@@ -51,6 +52,26 @@ const updateRequest = async (req, res) => {
         request.comment = comment;
         await request.save();
 
+         // Enviar notificación por correo
+         const msg = {
+          to: request.user.email,
+          from: 'cinthyasem@gmail.com', // Cambia esto al correo que utilizas en SendGrid
+          subject: `Estado de tu solicitud de adopción: ${status}`,
+          text: `Hola ${request.user.fullName},\n\nTu solicitud de adopción ha sido ${status}.\nComentario: ${comment}\n\nGracias por utilizar nuestra plataforma.`,
+          html: `<p>Hola ${request.user.fullName},</p>
+                 <p>Tu solicitud de adopción ha sido <strong>${status}</strong>.</p>
+                 <p>Comentario: ${comment}</p>
+                 <p>Gracias por utilizar nuestra plataforma.</p>`
+      };
+
+      try {
+          await sgMail.send(msg);
+      } catch (error) {
+          console.error("Error al enviar el correo:", error);
+          return res.status(500).json({ message: 'Error al enviar el correo de notificación' });
+      }
+
+        
         res.status(200).json({ message: 'Solicitud actualizada exitosamente', request});
     } catch (error) {
         res.status(500).json({ message: 'Error al actualizar la solicitud', error });
