@@ -22,16 +22,11 @@ module.exports = (sequelize) => {
 
       id_pet: {
         type: DataTypes.UUID,
-        allowNull: false,
+        allowNull: true,
         references: {
           model: "Pets",
           key: "id",
         },
-      },
-
-      preferedSpecie: {
-        type: DataTypes.ENUM("cat", "dog"),
-        allowNull: false,
       },
 
       timeAvailable: {
@@ -44,23 +39,8 @@ module.exports = (sequelize) => {
         allowNull: false,
       },
 
-      petsAllowed: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-      },
-
       totalHabitants: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-      },
-
-      allHabitantsAgree: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-      },
-
-      noScaping: {
-        type: DataTypes.BOOLEAN,
         allowNull: false,
       },
 
@@ -79,15 +59,6 @@ module.exports = (sequelize) => {
         allowNull: false,
       },
 
-      agreeToVet: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-      },
-
-      agreeToExpenses: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-      },
     },
     {
       timestamps: false,
