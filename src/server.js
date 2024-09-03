@@ -5,7 +5,7 @@ const cors = require("cors");
 const session = require("express-session");
 const bodyParser = require("body-parser");
 require('dotenv').config();
-const {listPets, getPet, createPet, deletePet} = require("./controllers/pets");
+const {listPets, getPet, createPet, changePetStatus} = require("./controllers/pets");
 const {listRequest, createRequest, updateRequest} = require("./controllers/requests");
 const { createUser } = require("./controllers/users");
 const createReview = require("./controllers/createReview");
@@ -81,7 +81,7 @@ server.post("/auth/", getJWT);
 // Pets endpoints
 server.get("/pets/", listPets);
 server.get("/pets/:petId/", getPet);
-server.delete("/pets/:petId/", deletePet);
+server.patch("/pets/:petId/", changePetStatus);
 server.post(
   "/pets/", upload.fields([
     { name: "photo", maxCount: 1 }, // Manejar un archivo con el campo 'image'
