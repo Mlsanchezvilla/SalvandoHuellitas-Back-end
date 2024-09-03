@@ -85,6 +85,10 @@ const createUser = async (req, res) => {
 //gets the user list
 const listUser = async (req, res) => {
   try {
+    const user = await getAuthUser(req)
+    if(!user){return res.status(403).json({ error: "Authentication required" })}
+    if(!user.isAdmin){return res.status(403).json({ error: "Only admins can perform this action" })}
+
     let query = req.query;
     let page;
     if(query.page) {
@@ -112,7 +116,30 @@ const listUser = async (req, res) => {
 };
 
 
+
+//Changes the status of a user
+const changeUserStatus = async (req, res) => {
+  try {
+    const user = await getAuthUser(req)
+    if(!user){return res.status(403).json({ error: "Authentication required" })}
+    if(!user.isAdmin){return res.status(403).json({ error: "Only admins can perform this action" })}
+
+    const { isActive } = req.body;
+    const { userId } = req.params;
+
+    let userToChange = await User.findByPk(userId);
+    console.log(user.id);
+    userToChange.isActive = isActive;
+    await userToChange.save();
+    res.status(200).json({ message: `Se cambio el status a ${isActive}`});
+  } catch (error) {
+    res.status(401).json({ error: error.message });
+  }
+};
+
+
 module.exports = {
   createUser,
-  listUser
+  listUser,
+  changeUserStatus
 };
