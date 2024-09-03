@@ -93,6 +93,7 @@ const createPet = async (req, res) => {
 
 
 
+//Changes the status of a pet
 const changePetStatus = async (req, res) => {
   try {
     const user = await getAuthUser(req)

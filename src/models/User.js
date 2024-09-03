@@ -14,6 +14,11 @@ module.exports = (sequelize) => {
     allowNull: false,
     defaultValue: false
   },
+ isActive: {
+    type: DataTypes.BOOLEAN,
+    // allowNull: false,
+    defaultValue: true
+  },
   fullName: {
     type: DataTypes.STRING,
     allowNull: false
@@ -54,11 +59,6 @@ module.exports = (sequelize) => {
     defaultValue: 0
   },
   googleId: {
-    type: DataTypes.STRING,
-    allowNull: true,
-    unique: true
-  },
-  facebookId: {
     type: DataTypes.STRING,
     allowNull: true,
     unique: true
