@@ -6,10 +6,10 @@ const uploadImageStreamCloudinary = require("../config/uploadImageStreamCloudina
 
 const listPets = async (req, res) => {
   try {
-    let {search, page, species, age, size, energyLevel, okWithPets, okWithKids, gender} = req.query;
+    let {status, search, page, species, age, size, energyLevel, okWithPets, okWithKids, gender} = req.query;
 
     // rebuild query with variables to filter
-    let query = {status: "available", species, age, size, energyLevel, okWithPets, okWithKids, gender}
+    let query = {status, species, age, size, energyLevel, okWithPets, okWithKids, gender}
 
     // checks for undefined or null query params and removes them from query
     for (let queryKey in query) {
