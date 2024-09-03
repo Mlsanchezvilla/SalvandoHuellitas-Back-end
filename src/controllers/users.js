@@ -50,10 +50,10 @@ const createUser = async (req, res) => {
       templateId: 'd-0046d074e98948bf9d7b22ddda836e44',
       dynamic_template_data: {},
     };
-    
-    
 
-    
+
+
+
     // Envía el correo electrónico
     try {
       // console.log('Enviando correo a:', email);
@@ -80,6 +80,39 @@ const createUser = async (req, res) => {
   }
 };
 
+
+
+//gets the user list
+const listUser = async (req, res) => {
+  try {
+    let query = req.query;
+    let page;
+    if(query.page) {
+      page = query.page;
+    } else {
+      page = 1;
+    }
+
+    const itemsPerPage = 10
+    page = parseInt(page);
+    let usersCount = await User.findAndCountAll({
+      limit: itemsPerPage,
+      offset: itemsPerPage * (page-1)
+    });
+
+    res.status(200).json({
+      page: page,
+      totalPages: Math.ceil(usersCount / itemsPerPage),
+      results: usersCount.rows
+    });
+  } catch (error) {
+    res.status(500)
+      .json({ message: "Error getting the user list", error: error.message });
+  }
+};
+
+
 module.exports = {
-  createUser
+  createUser,
+  listUser
 };
