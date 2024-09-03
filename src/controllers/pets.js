@@ -47,7 +47,7 @@ const listPets = async (req, res) => {
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
-}
+};
 
 
 
@@ -59,7 +59,7 @@ const getPet = async (req, res) => {
   } catch (error) {
     res.status(401).json({ error: error.message });
   }
-}
+};
 
 
 
@@ -110,6 +110,6 @@ const changePetStatus = async (req, res) => {
   } catch (error) {
     res.status(401).json({ error: error.message });
   }
-}
+};
 
 module.exports = {listPets, getPet, createPet, changePetStatus}
