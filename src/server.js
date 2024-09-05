@@ -1,10 +1,11 @@
+require('dotenv').config();
 const express = require("express");
 const router = require("./routes");
 const morgan = require("morgan");
 const cors = require("cors");
 const session = require("express-session");
 const bodyParser = require("body-parser");
-require('dotenv').config();
+
 const {listPets, getPet, createPet, deletePet} = require("./controllers/pets");
 const {listRequest, createRequest, updateRequest} = require("./controllers/requests");
 const { createUser } = require("./controllers/users");

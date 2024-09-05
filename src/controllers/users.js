@@ -48,7 +48,7 @@ const createUser = async (req, res) => {
       to: email,
       from: 'cinthyasem@gmail.com',
       templateId: 'd-0046d074e98948bf9d7b22ddda836e44',
-      dynamic_template_data: {},
+      dynamic_template_data: { fullName },
     };
     
     
