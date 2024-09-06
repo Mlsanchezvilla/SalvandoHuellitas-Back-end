@@ -6,10 +6,10 @@ const uploadImageStreamCloudinary = require("../config/uploadImageStreamCloudina
 
 const listPets = async (req, res) => {
   try {
-    let {search, page, species, age, size, energyLevel, okWithPets, okWithKids, gender} = req.query;
+    let {status, search, page, species, age, size, energyLevel, okWithPets, okWithKids, gender} = req.query;
 
     // rebuild query with variables to filter
-    let query = {status: "available", species, age, size, energyLevel, okWithPets, okWithKids, gender}
+    let query = {status, species, age, size, energyLevel, okWithPets, okWithKids, gender}
 
     // checks for undefined or null query params and removes them from query
     for (let queryKey in query) {
@@ -47,7 +47,7 @@ const listPets = async (req, res) => {
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
-}
+};
 
 
 
@@ -59,7 +59,7 @@ const getPet = async (req, res) => {
   } catch (error) {
     res.status(401).json({ error: error.message });
   }
-}
+};
 
 
 
@@ -93,21 +93,24 @@ const createPet = async (req, res) => {
 
 
 
-const deletePet = async (req, res) => {
-  const { petId } = req.params;
+//Changes the status of a pet
+const changePetStatus = async (req, res) => {
   try {
     const user = await getAuthUser(req)
     if(!user){return res.status(403).json({ error: "Authentication required" })}
     console.log(user)
     if(!user.isAdmin){return res.status(403).json({ error: "Only admins can perform this action" })}
 
+    const { petId } = req.params;
+    const { status } = req.body;
+
     let pet = await Pet.findByPk(petId);
-    pet.status = "inactive";
+    pet.status = status;
     await pet.save();
-    res.status(200).json({ message: "La mascota fue borrada"});
+    res.status(200).json({ message: `Se cambio el status a ${status}`});
   } catch (error) {
     res.status(401).json({ error: error.message });
   }
-}
+};
 
-module.exports = {listPets, getPet, createPet, deletePet}
+module.exports = {listPets, getPet, createPet, changePetStatus}

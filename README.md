@@ -10,4 +10,4 @@ Repositorio Para trabajar el back del proyecto
 
 ## Comandos SQL
 Para crear el primer usuario administrador:
-```UPDATE "Users" SET "isAdmin"='t' WHERE email='juan2@mail.com';```
+```UPDATE "Users" SET "isAdmin"='t' WHERE email='admin1@mail.com';```

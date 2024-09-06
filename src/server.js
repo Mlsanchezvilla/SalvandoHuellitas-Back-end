@@ -5,10 +5,10 @@ const morgan = require("morgan");
 const cors = require("cors");
 const session = require("express-session");
 const bodyParser = require("body-parser");
-const sgMail = require('./services/sendgrid');
-const {listPets, getPet, createPet, deletePet} = require("./controllers/pets");
+require('dotenv').config();
+const {listPets, getPet, createPet, changePetStatus} = require("./controllers/pets");
 const {listRequest, createRequest, updateRequest} = require("./controllers/requests");
-const { createUser } = require("./controllers/users");
+const { createUser, listUser, changeUserStatus } = require("./controllers/users");
 const createReview = require("./controllers/createReview");
 const listReview = require("./controllers/listReview");
 
@@ -101,7 +101,7 @@ server.use(router);
 // Pets endpoints
 server.get("/pets/", listPets);
 server.get("/pets/:petId/", getPet);
-server.delete("/pets/:petId/", deletePet);
+server.patch("/pets/:petId/", changePetStatus);
 server.post(
   "/pets/", upload.fields([
     { name: "photo", maxCount: 1 }, // Manejar un archivo con el campo 'image'
@@ -110,7 +110,13 @@ server.post(
 );
 
 
-server.post("/users/", createUser);
+
+// User endpoints
+server.post("/users/", upload.fields([
+    { name: "idCard", maxCount: 1 }, // Manejar un archivo con el campo 'image'
+  ]), createUser);
+server.get("/users/", listUser);
+server.patch("/users/:userId/", changeUserStatus);
 
 
 
@@ -123,6 +129,8 @@ server.patch("/requests/:id", updateRequest);
 
 // Ruta para crear una nueva solicitud de adopción
 server.post("/requests", createRequest);
+
+
 
 
 // Reviews

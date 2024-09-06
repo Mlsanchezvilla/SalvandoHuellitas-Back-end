@@ -1,7 +1,8 @@
 const { User } = require("../db");
 const { getAuthUser } = require("../jwt");
 const bcrypt = require("bcrypt");
-const sgMail = require("../services/sendgrid"); // Import SendGrid
+const sgMail = require("../services/sendgrid");
+const uploadImageStreamCloudinary = require("../config/uploadImageStreamCloudinary"); // Import SendGrid
 
 const createUser = async (req, res) => {
   try {
@@ -18,7 +19,6 @@ const createUser = async (req, res) => {
       password,
       birthDate,
       phone,
-      idCard,
       occupation,
     } = req.body;
 
@@ -33,6 +33,11 @@ const createUser = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const file = req.files.idCard[0];
+    const buffer = file.buffer;
+    const result = await uploadImageStreamCloudinary(buffer)
+
+    console.log(result)
     const newUser = await User.create({
       isAdmin,
       fullName,
@@ -40,7 +45,7 @@ const createUser = async (req, res) => {
       password: hashedPassword,
       birthDate,
       phone,
-      idCard,
+      idCard: result.secure_url,
       occupation,
     });
 
@@ -50,10 +55,10 @@ const createUser = async (req, res) => {
       templateId: 'd-0046d074e98948bf9d7b22ddda836e44',
       dynamic_template_data: { fullName },
     };
-    
-    
 
-    
+
+
+
     // Envía el correo electrónico
     try {
       // console.log('Enviando correo a:', email);
@@ -80,6 +85,66 @@ const createUser = async (req, res) => {
   }
 };
 
+
+
+//gets the user list
+const listUser = async (req, res) => {
+  try {
+    const user = await getAuthUser(req)
+    if(!user){return res.status(403).json({ error: "Authentication required" })}
+    if(!user.isAdmin){return res.status(403).json({ error: "Only admins can perform this action" })}
+
+    let query = req.query;
+    let page;
+    if(query.page) {
+      page = query.page;
+    } else {
+      page = 1;
+    }
+
+    const itemsPerPage = 10
+    page = parseInt(page);
+    let usersCount = await User.findAndCountAll({
+      limit: itemsPerPage,
+      offset: itemsPerPage * (page-1)
+    });
+
+    res.status(200).json({
+      page: page,
+      totalPages: Math.ceil(usersCount / itemsPerPage),
+      results: usersCount.rows
+    });
+  } catch (error) {
+    res.status(500)
+      .json({ message: "Error getting the user list", error: error.message });
+  }
+};
+
+
+
+//Changes the status of a user
+const changeUserStatus = async (req, res) => {
+  try {
+    const user = await getAuthUser(req)
+    if(!user){return res.status(403).json({ error: "Authentication required" })}
+    if(!user.isAdmin){return res.status(403).json({ error: "Only admins can perform this action" })}
+
+    const { isActive } = req.body;
+    const { userId } = req.params;
+
+    let userToChange = await User.findByPk(userId);
+    console.log(user.id);
+    userToChange.isActive = isActive;
+    await userToChange.save();
+    res.status(200).json({ message: `Se cambio el status a ${isActive}`});
+  } catch (error) {
+    res.status(401).json({ error: error.message });
+  }
+};
+
+
 module.exports = {
-  createUser
+  createUser,
+  listUser,
+  changeUserStatus
 };
