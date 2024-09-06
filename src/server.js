@@ -92,7 +92,9 @@ server.post(
 
 
 // User endpoints
-server.post("/users/", createUser);
+server.post("/users/", upload.fields([
+    { name: "idCard", maxCount: 1 }, // Manejar un archivo con el campo 'image'
+  ]), createUser);
 server.get("/users/", listUser);
 server.patch("/users/:userId/", changeUserStatus);
 
