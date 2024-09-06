@@ -1,7 +1,8 @@
 const { User } = require("../db");
 const { getAuthUser } = require("../jwt");
 const bcrypt = require("bcrypt");
-const sgMail = require("../services/sendgrid"); // Import SendGrid
+const sgMail = require("../services/sendgrid");
+const uploadImageStreamCloudinary = require("../config/uploadImageStreamCloudinary"); // Import SendGrid
 
 const createUser = async (req, res) => {
   try {
@@ -18,7 +19,6 @@ const createUser = async (req, res) => {
       password,
       birthDate,
       phone,
-      idCard,
       occupation,
     } = req.body;
 
@@ -33,6 +33,11 @@ const createUser = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const file = req.files.idCard[0];
+    const buffer = file.buffer;
+    const result = await uploadImageStreamCloudinary(buffer)
+
+    console.log(result)
     const newUser = await User.create({
       isAdmin,
       fullName,
@@ -40,7 +45,7 @@ const createUser = async (req, res) => {
       password: hashedPassword,
       birthDate,
       phone,
-      idCard,
+      idCard: result.secure_url,
       occupation,
     });
 
