@@ -39,7 +39,7 @@ server.use(
 //
 
 
-server.use(router);
+
 
 
 const multer = require("multer");
@@ -96,7 +96,7 @@ server.use("/api", router); // Asegúrate de usar el prefijo adecuado para tus r
 server.post("/auth/google/", googleAuth);
 server.post("/auth/", getJWT);
 
-
+server.use(router);
 
 // Pets endpoints
 server.get("/pets/", listPets);
