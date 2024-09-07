@@ -18,16 +18,18 @@
 
 const axios = require("axios");
 const server = require("./src/server"); //* requires server
-const { conn } = require('./src/db.js'); //* imports connection to the DB
+const { conn } = require("./src/db.js"); //* imports connection to the DB
 const PORT = 3001; //* previous port definition
 
-
 // Syncing all the models at once.
-conn.sync({ alter: true }).then(() => {
-  //* force: true borra db
-  //* alter: true mantiene db
-server.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`); //* confirmation
-  // populateDb();
-});
-}).catch(error => console.error(error));
+conn
+  .sync({ alter: true })
+  .then(() => {
+    //* force: true borra db
+    //* alter: true mantiene db
+    server.listen(PORT, () => {
+      console.log(`Server listening on port ${PORT}`); //* confirmation
+      // populateDb();
+    });
+  })
+  .catch((error) => console.error(error));

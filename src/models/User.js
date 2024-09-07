@@ -14,6 +14,11 @@ module.exports = (sequelize) => {
     allowNull: false,
     defaultValue: false
   },
+ isActive: {
+    type: DataTypes.BOOLEAN,
+    // allowNull: false,
+    defaultValue: true
+  },
   fullName: {
     type: DataTypes.STRING,
     allowNull: false
@@ -28,11 +33,11 @@ module.exports = (sequelize) => {
   },
   password: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: true
   },
-  age: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
+  birthDate: {
+    type: DataTypes.DATE,
+    allowNull: true,
     validate: {
       min: 0
     }
@@ -51,29 +56,14 @@ module.exports = (sequelize) => {
   },
   adoptions: {
     type: DataTypes.INTEGER,
-    allowNull: false,
     defaultValue: 0
   },
-
   googleId: {
     type: DataTypes.STRING,
     allowNull: true,
     unique: true
   },
-  facebookId: {
-    type: DataTypes.STRING,
-    allowNull: true,
-    unique: true
-  },
 
-  gender: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    validate: {
-      isIn: [['female', 'male']] 
-    }
-
-  }
   }, {
   timestamps: true, 
  });
