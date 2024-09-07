@@ -7,7 +7,3 @@ Repositorio Para trabajar el back del proyecto
 ## Primera vez
 ### Instalar paquetes
 ```npm i```
-
-## Comandos SQL
-Para crear el primer usuario administrador:
-```UPDATE "Users" SET "isAdmin"='t' WHERE email='admin1@mail.com';```
