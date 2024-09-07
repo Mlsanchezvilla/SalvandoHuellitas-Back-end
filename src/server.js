@@ -1,119 +1,132 @@
 const express = require("express");
-const router = require("./routes");
+const router = require ("./routes")
 const morgan = require("morgan");
 const cors = require("cors");
 const session = require("express-session");
-const bodyParser = require("body-parser");
-require('dotenv').config();
-const {listPets, getPet, createPet, changePetStatus} = require("./controllers/pets");
-const {listRequest, createRequest, updateRequest} = require("./controllers/requests");
-const { createUser, listUser, changeUserStatus } = require("./controllers/users");
+const passport = require("passport");
+const bodyParser = require('body-parser');
+
+
+// Importar controladores y rutas
+const createPet = require("./controllers/createPet");
+const listPet = require("./controllers/listPet");
+const getPet = require("./controllers/getPet");
 const createReview = require("./controllers/createReview");
+const listRequest = require("./controllers/listRequest");
 const listReview = require("./controllers/listReview");
+const {  createUser, findOrCreateUser  } = require("./controllers/createUser");
+const { createPetCloudinary } = require("./controllers/createPetCloudinary");
+// Configuración de estrategias de autenticación
+const { Strategy: GoogleStrategy } = require("passport-google-oauth20");
+//const { Strategy: FacebookStrategy } = require("passport-facebook");
 
-const { googleAuth, getJWT } = require("./controllers/auth");
+const server = express();
 
-const server = express(); //*creates server
 
 server.use(morgan("dev"));
-
-// Test if this can be deleted
-server.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
-  next();
-});
 server.use(cors());
 server.use(express.json());
-server.use(bodyParser.json({ limit: "10mb" }));
-server.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
-server.use(
-  session({ secret: "your_secret_key", resave: false, saveUninitialized: true })
-);
-//
-
+server.use(bodyParser.json({ limit: '10mb' }));
+server.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
+server.use(session({ secret: "your_secret_key", resave: false, saveUninitialized: true }));
+server.use(passport.initialize());
+server.use(passport.session());
 
 server.use(router);
 
+// Serialización y deserialización de usuario
+passport.serializeUser((user, done) => {
+    done(null, user.id);
+});
 
-const multer = require("multer");
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+passport.deserializeUser(async (id, done) => {
+    try {
+        const user = await findOrCreateUser({ id });
+        done(null, user);
+    } catch (err) {
+        done(err, null);
+    }
+});
 
-server.post('/api/mail', async(req, res) => {
-  const { to, subject, text, html} = req.body;
+// Configuración de estrategias de Passport
+passport.use(new GoogleStrategy({
+    clientID: "GOOGLE_CLIENT_ID",
+    clientSecret: "GOOGLE_CLIENT_SECRET",
+    callbackURL: "/auth/google"
+}, async (accessToken, refreshToken, profile, done) => {
+    try {
+        const user = await findOrCreateUser({ googleId: profile.id, fullName: profile.displayName, email: profile.emails[0].value });
+        return done(null, user);
+    } catch (err) {
+        return done(err, null);
+    }
+}));
 
-  const msg = {
-    to,
-    from: 'cinthyasem@gmail.com',
-    subject,
-    text,
-    html,
-    
-  };
+// passport.use(new FacebookStrategy({
+//     clientID: "YOUR_FACEBOOK_CLIENT_ID",
+//     clientSecret: "YOUR_FACEBOOK_CLIENT_SECRET",
+//     callbackURL: "/auth/facebook/callback",
+//     profileFields: ["id", "displayName", "emails"]
+// }, async (accessToken, refreshToken, profile, done) => {
+//     try {
+//         const user = await findOrCreateUser({ facebookId: profile.id, fullName: profile.displayName, email: profile.emails[0].value });
+//         return done(null, user);
+//     } catch (err) {
+//         return done(err, null);
+//     }
+// }));
 
-  try{
-    await sgMail.send(msg);
-  }catch(err){
-   return res.status(err.code).send(err.message);
+// Rutas de autenticación
+server.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+server.get("/auth/google/callback", passport.authenticate("google", { failureRedirect: "/login" }), (req, res) => {
+    res.redirect("/"); // Redirige a la página principal o a donde desees
+});
+
+// server.get("/auth/facebook", passport.authenticate("facebook", { scope: ["email"] }));
+// server.get("/auth/facebook/callback", passport.authenticate("facebook", { failureRedirect: "/login" }), (req, res) => {
+//     res.redirect("/"); // Redirige a la página principal o a donde desees
+// });
+
+// Rutas principales
+server.use('/api', router); // Asegúrate de usar el prefijo adecuado para tus rutas
+
+// Crear una nueva mascota
+server.post("/pets/", async (req, res) => {
+  try {
+    const newPet = await createPet(req.body);
+    res.status(200).json(newPet);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
+});
 
-  res.status(201).send({ success: true });
+// Listar mascotas según filtros o consultas de búsqueda
+server.get("/pets/", async (req, res) => {
+  try {
+    const petList = await listPet(req.query);
+    res.status(200).json(petList);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+//* gets a pet by it's id
+server.get("/pets/:idPet", async (req, res) => {
+  const petId = req.params.idPet;
+  try {
+    const petFound = await getPet(petId);
+    res.status(200).json(petFound);
+  } catch (error) {
+    res.status(401).json({ error: error.message });
+  }
 });
 
 
-// Rutas principales
-server.use("/api", router); // Asegúrate de usar el prefijo adecuado para tus rutas
 
+//*create user
+server.post("/users/", createUser)
 
-
-// Auth
-server.post("/auth/google/", googleAuth);
-server.post("/auth/", getJWT);
-
-
-
-// Pets endpoints
-server.get("/pets/", listPets);
-server.get("/pets/:petId/", getPet);
-server.patch("/pets/:petId/", changePetStatus);
-server.post(
-  "/pets/", upload.fields([
-    { name: "photo", maxCount: 1 }, // Manejar un archivo con el campo 'image'
-  ]),
-  createPet
-);
-
-
-
-// User endpoints
-server.post("/users/", upload.fields([
-    { name: "idCard", maxCount: 1 }, // Manejar un archivo con el campo 'image'
-  ]), createUser);
-server.get("/users/", listUser);
-server.patch("/users/:userId/", changeUserStatus);
-
-
-
-//* Requests
-
-server.get("/requests/", listRequest);
-
-// Ruta para actualizar una solicitud de adopción
-server.patch("/requests/:id", updateRequest);
-
-// Ruta para crear una nueva solicitud de adopción
-server.post("/requests", createRequest);
-
-
-
-
-// Reviews
+// Crear reseña
 server.post("/reviews/", async (req, res) => {
   try {
     const newReview = await createReview(req.body);
@@ -123,6 +136,7 @@ server.post("/reviews/", async (req, res) => {
   }
 });
 
+// Listar reseñas
 server.get("/reviews/", async (req, res) => {
   try {
     const reviewList = await listReview(req.query);
@@ -133,5 +147,35 @@ server.get("/reviews/", async (req, res) => {
 });
 
 
+// Listar solicitudes
+server.get("/requests/", async (req, res) => {
+    try {
+        const requestList = await listRequest(req.query);
+        res.status(200).json(requestList);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+
+    server.get('/auth/google'), async (req, res) => {
+        const page = parseInt(req.query.page, 10) || 1;
+        const limit = parseInt(req.query.limit, 10) || 10;
+        const offset = (page - 1) * limit;
+    }
+
+});
+
+
+
+const multer = require("multer");
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
+server.post(
+  "/petcloud/",
+  upload.fields([
+    { name: "image", maxCount: 1 }, // Manejar un archivo con el campo 'image'
+  ]),
+  createPetCloudinary
+);
 
 module.exports = server; //*exports server
