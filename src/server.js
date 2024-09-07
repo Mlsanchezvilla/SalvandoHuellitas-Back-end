@@ -67,29 +67,9 @@ server.post('/api/mail', async(req, res) => {
   res.status(201).send({ success: true });
 });
 
-server.post('/test-email', async (req, res) => {
-  const msg = {
-    to: 'cinthyasm_@hotmail.com',
-    from: 'cinthyasem@gmail.com',
-    subject: 'Correo de prueba desde emailService.js',
-    text: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.',
-  };
-
-  try {
-    await sgMail.send(msg);
-    res.status(200).json({ message: 'Correo enviado exitosamente' });
-  } catch (error) {
-    res.status(500).json({
-      message: 'Error al enviar el correo',
-      error: error.response ? error.response.body : error.message,
-    });
-  }
-});
-
 
 // Rutas principales
 server.use("/api", router); // Asegúrate de usar el prefijo adecuado para tus rutas
-
 
 
 // Auth
@@ -133,7 +113,8 @@ server.post("/requests", createRequest);
 
 
 
-// Reviews
+//* Reviews:
+
 server.post("/reviews/", async (req, res) => {
   try {
     const newReview = await createReview(req.body);
