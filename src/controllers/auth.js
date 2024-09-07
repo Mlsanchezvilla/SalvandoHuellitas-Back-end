@@ -90,4 +90,5 @@ const getJWT = async (req, res) => {
 
 }
 
+
 module.exports = {googleAuth, getJWT};
