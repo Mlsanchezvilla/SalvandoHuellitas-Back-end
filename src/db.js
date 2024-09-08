@@ -1,12 +1,12 @@
 require("dotenv").config(); //* imports the use of .env files
-const { Sequelize } = require("sequelize"); //* imports the ORM
+const { Sequelize, DataTypes } = require("sequelize"); //* imports the ORM
 
 const fs = require("fs");
 const path = require("path");
 
 const {
   //* defines variables to access the DB
-  DB_URL
+  DB_URL,
 } = process.env; //*
 
 //* imports functions for model creation (tables)
@@ -14,6 +14,7 @@ const PetFunction = require("./models/Pet");
 const UserFunction = require("./models/User");
 const ReviewFunction = require("./models/Review");
 const RequestFunction = require("./models/Request");
+const AdoptionsFunction = require("./models/Adoptions");
 
 //* connection to the DB
 const sequelize = new Sequelize(DB_URL, {
@@ -49,10 +50,11 @@ PetFunction(sequelize);
 UserFunction(sequelize);
 ReviewFunction(sequelize);
 RequestFunction(sequelize);
+AdoptionsFunction(sequelize);
 
 // all imported  sequelize.models
 // destructuring to relate the models
-const { Pet, User, Review, Request } = sequelize.models;
+// const { Pet, User, Review, Request, Adoptions } = sequelize.models;
 
 //* model relationships
 
