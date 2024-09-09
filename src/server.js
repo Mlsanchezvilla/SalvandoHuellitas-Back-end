@@ -78,7 +78,8 @@ server.post("/auth/", getJWT);
 
 
 
-// Pets endpoints
+//* Pets endpoints
+
 server.get("/pets/", listPets);
 server.get("/pets/:petId/", getPet);
 server.patch("/pets/:petId/", changePetStatus);
@@ -91,7 +92,8 @@ server.post(
 
 
 
-// User endpoints
+//* User endpoints
+
 server.post("/users/", upload.fields([
     { name: "idCard", maxCount: 1 }, // Manejar un archivo con el campo 'image'
   ]), createUser);

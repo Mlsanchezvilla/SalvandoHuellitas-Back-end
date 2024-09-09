@@ -4,6 +4,8 @@ const bcrypt = require("bcrypt");
 const sgMail = require("../services/sendgrid");
 const uploadImageStreamCloudinary = require("../config/uploadImageStreamCloudinary"); // Import SendGrid
 
+
+
 const createUser = async (req, res) => {
   try {
     let isAdmin = false;
