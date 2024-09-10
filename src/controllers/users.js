@@ -87,38 +87,63 @@ const createUser = async (req, res) => {
 
 
 
-//gets the user list
+// Gets the user list with status filtering
 const listUser = async (req, res) => {
   try {
-    const user = await getAuthUser(req)
-    if(!user){return res.status(403).json({ error: "Authentication required" })}
-    if(!user.isAdmin){return res.status(403).json({ error: "Only admins can perform this action" })}
-
-    let query = req.query;
-    let page;
-    if(query.page) {
-      page = query.page;
-    } else {
-      page = 1;
+    const user = await getAuthUser(req);
+    if (!user) {
+      return res.status(403).json({ error: "Authentication required" });
+    }
+    if (!user.isAdmin) {
+      return res.status(403).json({ error: "Only admins can perform this action" });
     }
 
-    const itemsPerPage = 10
+    let { page = 1, status } = req.query;
+    const itemsPerPage = 10;
     page = parseInt(page);
+
+    console.log('Status received from frontend:', status); // Log the status filter received
+    console.log('Page received from frontend:', page); // Log the page number received
+
+    let whereClause = {};
+
+    // Handle filtering by active/inactive status
+    if (status === 'active') {
+      whereClause.isActive = true;
+    } else if (status === 'inactive') {
+      whereClause.isActive = false;
+    }
+
+    console.log('WhereClause to apply on DB query:', whereClause); // Log the where clause
+
+    // Fetch users with filtering and pagination
     let usersCount = await User.findAndCountAll({
+      where: whereClause,
       limit: itemsPerPage,
-      offset: itemsPerPage * (page-1)
+      offset: itemsPerPage * (page - 1),
     });
+
+    const totalPages = Math.ceil(usersCount.count / itemsPerPage);
+
+    console.log('Total users found:', usersCount.count);  // Log total users found
+    console.log('Total pages calculated:', totalPages);  // Log total pages calculated
 
     res.status(200).json({
       page: page,
-      totalPages: Math.ceil(usersCount / itemsPerPage),
-      results: usersCount.rows
+      totalPages: totalPages,
+      results: usersCount.rows,
     });
   } catch (error) {
-    res.status(500)
-      .json({ message: "Error getting the user list", error: error.message });
+    console.error('Error getting the user list:', error.message);  // Log the actual error for debugging
+    res.status(500).json({ message: "Error getting the user list", error: error.message });
   }
 };
+
+
+
+
+
+
 
 
 
