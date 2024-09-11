@@ -1,4 +1,4 @@
-const { Review, Adoptions } = require("../db");
+const { Review } = require("../db");
 
 const createReview = async (req, res) => {
   try {
@@ -10,17 +10,16 @@ const createReview = async (req, res) => {
     }
 
     // Verificar si el usuario tiene una adopción aprobada
-    const adoption = await Adoptions.findOne({
-      where: { id_user, status: "Aprobada" },
-    });
-    console.log(adoption123456);
+    // const adoption = await Adoptions.findOne({
+    //   where: { id_user, status: "Aprobada" },
+    // });
 
-    if (!adoption) {
-      return res.status(403).json({
-        canReview: false,
-        message: "No has completado el proceso de adopción.",
-      });
-    }
+    // if (!adoption) {
+    //   return res.status(403).json({
+    //     canReview: false,
+    //     message: "No has completado el proceso de adopción.",
+    //   });
+    // }
 
     // Si la adopción está aprobada, crear la reseña
     const newReview = await Review.create({
