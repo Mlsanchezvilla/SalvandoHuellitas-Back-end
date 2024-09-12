@@ -1,11 +1,11 @@
-const { Review, Adoptions } = require("../db");
+const { Review } = require("../db");
 
 const reviewManagement = async (req, res) => {
   const { id_user, reviewText, rating } = req.body;
 
   try {
     // Asegúrate de que el usuario haya completado la adopción
-    const adoption = await Adoptions.findOne({
+    const adoption = await Review.findOne({
       where: { id_user, status: "Aprobada" },
     });
 
