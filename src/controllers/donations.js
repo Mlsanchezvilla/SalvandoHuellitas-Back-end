@@ -1,5 +1,6 @@
 const { MercadoPagoConfig, Preference } = require('mercadopago');
 const { getAuthUser } = require("../jwt");
+const { Donation } = require("../db");
 
 
 // Ad credentials
@@ -31,12 +32,51 @@ const client = new MercadoPagoConfig({ accessToken: process.env.MERCADOPAGO_ACCE
   };
 
 
+
+
   //creates a new donation on DB
   const createDonation = (req, res) => {};
 
 
 
+
+  //gets the donation list
+const listDonation = async (req, res) => {
+  try {
+    const user = await getAuthUser(req)
+    if(!user){return res.status(403).json({ error: "Authentication required" })}
+    if(!user.isAdmin){return res.status(403).json({ error: "Only admins can perform this action" })}
+
+    let query = req.query;
+    let page;
+    if(query.page) {
+      page = query.page;
+    } else {
+      page = 1;
+    }
+
+    const itemsPerPage = 10
+    page = parseInt(page);
+    let donationCount = await Donation.findAndCountAll({
+      limit: itemsPerPage,
+      offset: itemsPerPage * (page-1)
+    });
+
+    res.status(200).json({
+      page: page,
+      totalPages: Math.ceil(donationCount / itemsPerPage),
+      results: donationCount.rows
+    });
+  } catch (error) {
+    res.status(500)
+      .json({ message: "Error getting the user list", error: error.message });
+  }
+};
+
+
+
 module.exports = {
     createDonation,
-    createPaymentLink
+    createPaymentLink,
+    listDonation
 };

@@ -1,5 +1,4 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require("../db");
 
 module.exports = (sequelize) => {
  sequelize.define('Donation', {
@@ -11,7 +10,6 @@ module.exports = (sequelize) => {
   },
   id_user: {
     type: DataTypes.UUID,
-    allowNull: false,
     references: {
       model: "Users",
       key: "id",

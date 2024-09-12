@@ -8,7 +8,7 @@ require('dotenv').config();
 const {listPets, getPet, createPet, changePetStatus, suggestPetsForUser} = require("./controllers/pets");
 const {listRequest, createRequest, updateRequest} = require("./controllers/requests");
 const { createUser, listUser, changeUserStatus } = require("./controllers/users");
-const { createPaymentLink } = require("./controllers/donations");
+const { createPaymentLink, createDonation, listDonation } = require("./controllers/donations");
 const createReview = require("./controllers/createReview");
 const listReview = require("./controllers/listReview");
 
@@ -108,6 +108,7 @@ server.post("/requests", createRequest);
 
 //* Donations
 server.post( "/paymentLink/", createPaymentLink);
+server.get( "/donations/", listDonation);
 
 
 
