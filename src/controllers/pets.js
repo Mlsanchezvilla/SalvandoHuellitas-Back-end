@@ -8,6 +8,8 @@ const listPets = async (req, res) => {
   try {
     let {status, search, page, species, age, size, energyLevel, okWithPets, okWithKids, gender} = req.query;
 
+    status = status || 'available';
+
     // rebuild query with variables to filter
     let query = {status, species, age, size, energyLevel, okWithPets, okWithKids, gender}
 
@@ -48,6 +50,46 @@ const listPets = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
+
+
+
+
+const suggestPetsForUser = async (req, res) => {
+  try {
+    // Obtener las respuestas del formulario del cuerpo de la solicitud
+    const { timeAvailable, space, totalHabitants, hasPets, hasKids, addedCondition } = req.body;
+
+    // Construir la consulta para filtrar mascotas basadas en las respuestas del formulario
+    let query = {
+      status: "available",  // Solo sugerir mascotas disponibles
+      size: space,          // Tamaño de la mascota debe coincidir con el espacio disponible
+      okWithPets: hasPets,  // Compatibilidad con otras mascotas
+      okWithKids: hasKids,  // Compatibilidad con niños
+    };
+
+    // Filtrar según el nivel de energía en función del tiempo disponible
+    if (timeAvailable) {
+      if (timeAvailable === "0" || timeAvailable === "-1") {
+        query.energyLevel = { [Op.or]: ["low", "medium"] }; // Mascotas de baja o media energía si hay poco tiempo
+      } else if (timeAvailable === "1" || timeAvailable === "+1") {
+        query.energyLevel = { [Op.or]: ["medium", "high"] }; // Mascotas de media o alta energía si hay más tiempo
+      }
+    }
+
+    // Consulta a la base de datos de las mascotas que coincidan con el filtro
+    const matchingPets = await Pet.findAll({ where: query });
+
+    // Retornar las mascotas que hacen match con las respuestas del formulario
+    res.status(200).json(matchingPets);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+
+
+
 
 
 
@@ -113,4 +155,4 @@ const changePetStatus = async (req, res) => {
   }
 };
 
-module.exports = {listPets, getPet, createPet, changePetStatus}
+module.exports = {listPets, getPet, createPet, changePetStatus, suggestPetsForUser}
