@@ -5,7 +5,7 @@ const cors = require("cors");
 const session = require("express-session");
 const bodyParser = require("body-parser");
 require('dotenv').config();
-const {listPets, getPet, createPet, changePetStatus} = require("./controllers/pets");
+const {listPets, getPet, createPet, changePetStatus, suggestPetsForUser} = require("./controllers/pets");
 const {listRequest, createRequest, updateRequest} = require("./controllers/requests");
 const { createUser, listUser, changeUserStatus } = require("./controllers/users");
 const createReview = require("./controllers/createReview");
@@ -88,7 +88,8 @@ server.post(
   ]),
   createPet
 );
-
+// Ruta para filtrar mascotas con base en el formulario de adopción
+server.post("/pets/suggest", suggestPetsForUser);
 
 
 // User endpoints
@@ -109,6 +110,7 @@ server.patch("/requests/:id", updateRequest);
 
 // Ruta para crear una nueva solicitud de adopción
 server.post("/requests", createRequest);
+
 
 
 
