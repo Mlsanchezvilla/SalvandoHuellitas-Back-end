@@ -84,7 +84,7 @@ server.use("/api", router); // Asegúrate de usar el prefijo adecuado para tus r
 server.post("/auth/google/", googleAuth);
 server.post("/auth/", getJWT);
 
-// Pets endpoints
+
 server.get("/pets/", listPets);
 server.get("/pets/:petId/", getPet);
 server.patch("/pets/:petId/", changePetStatus);
@@ -96,10 +96,12 @@ server.post(
   createPet
 );
 
-// User endpoints
-server.post(
-  "/users/",
-  upload.fields([
+
+
+//* User endpoints
+
+server.post("/users/", upload.fields([
+
     { name: "idCard", maxCount: 1 }, // Manejar un archivo con el campo 'image'
   ]),
   createUser
