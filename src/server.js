@@ -7,7 +7,7 @@ const bodyParser = require("body-parser");
 require('dotenv').config();
 const {listPets, getPet, createPet, changePetStatus} = require("./controllers/pets");
 const {listRequest, createRequest, updateRequest} = require("./controllers/requests");
-const { createUser, listUser, changeUserStatus } = require("./controllers/users");
+const { createUser, listUser, changeUserStatus, getUser, updateUserProfile } = require("./controllers/users");
 const createReview = require("./controllers/createReview");
 const listReview = require("./controllers/listReview");
 
@@ -97,6 +97,9 @@ server.post("/users/", upload.fields([
   ]), createUser);
 server.get("/users/", listUser);
 server.patch("/users/:userId/", changeUserStatus);
+server.get("/users/:userId", getUser);
+server.patch('/users/profile', upload.fields([{ name: 'idCard', maxCount: 1 }]), updateUserProfile);
+
 
 
 
