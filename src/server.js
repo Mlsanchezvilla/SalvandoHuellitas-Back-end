@@ -112,7 +112,7 @@ server.post( "/webhooks/mercadopago", mercadopagoWebhook);
 
 
 // Reviews
-server.post("/reviews/ ", createReview);
+server.post("/reviews/", createReview);
 
 server.get("/reviews/", async (req, res) => {
   try {

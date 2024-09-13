@@ -20,24 +20,14 @@ module.exports = (sequelize) => {
         },
       },
 
-      id_pet: {
-        type: DataTypes.UUID,
-        allowNull: false,
-        references: {
-          model: "Pets",
-          key: "id",
-        },
-      },
-
       isActive: {
         type: DataTypes.BOOLEAN,
         defaultValue: true,
       },
 
-      status: {
-        type: DataTypes.ENUM("Pending", "Aprobada", "Rechazada"),
+      score: {
+        type: DataTypes.ENUM("1", "2", "3", "4", "5"),
         allowNull: false,
-        defaultValue: "Pending",
       },
 
       comment: {
@@ -47,7 +37,6 @@ module.exports = (sequelize) => {
 
       date: {
         type: DataTypes.DATE,
-        allowNull: false,
         defaultValue: DataTypes.NOW,
       },
     },
