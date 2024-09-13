@@ -4,7 +4,6 @@ const morgan = require("morgan");
 const cors = require("cors");
 const session = require("express-session");
 const bodyParser = require("body-parser");
-
 require("dotenv").config();
 const {
   listPets,
@@ -23,9 +22,12 @@ const {
   listUser,
   changeUserStatus,
 } = require("./controllers/users");
-
+const {
+  createPaymentLink,
+  createDonation,
+  listDonation,
+} = require("./controllers/donations");
 const createReview = require("./controllers/createReview");
-const reviewManagement = require("./controllers/reviewManagement");
 const listReview = require("./controllers/listReview");
 
 const { googleAuth, getJWT } = require("./controllers/auth");
@@ -87,6 +89,7 @@ server.use("/api", router); // Asegúrate de usar el prefijo adecuado para tus r
 server.post("/auth/google/", googleAuth);
 server.post("/auth/", getJWT);
 
+//* Pets endpoints
 server.get("/pets/", listPets);
 server.get("/pets/:petId/", getPet);
 server.patch("/pets/:petId/", changePetStatus);
@@ -100,8 +103,7 @@ server.post(
 // Ruta para filtrar mascotas con base en el formulario de adopción
 server.post("/pets/suggest", suggestPetsForUser);
 
-//* User endpoints
-
+//* Users endpoints
 server.post(
   "/users/",
   upload.fields([
@@ -113,19 +115,18 @@ server.get("/users/", listUser);
 server.patch("/users/:userId/", changeUserStatus);
 
 //* Requests
-
 server.get("/requests/", listRequest);
-
 // Ruta para actualizar una solicitud de adopción
 server.patch("/requests/:id", updateRequest);
-
 // Ruta para crear una nueva solicitud de adopción
 server.post("/requests", createRequest);
 
+//* Donations
+server.post("/paymentLink/", createPaymentLink);
+server.get("/donations/", listDonation);
+
 // Reviews
 server.post("/reviews/ ", createReview);
-
-server.post("/reviews/", reviewManagement);
 
 server.get("/reviews/", async (req, res) => {
   try {
