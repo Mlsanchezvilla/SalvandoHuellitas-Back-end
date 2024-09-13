@@ -56,18 +56,18 @@ const createReview = async (req, res) => {
       return res.status(400).json({ error: "Invalid status value" });
     }
 
-    // Verificar si el usuario tiene una adopción aprobada
-    // const adoption = await Adoptions.findOne({
-    //   where: { id_user, status: "Aprobada" },
-    // });
+    //Verificar si el usuario tiene una adopción aprobada
+    const adoption = await Adoptions.findOne({
+      where: { id_user, status: "Aprobada" },
+    });
 
-    // if (!adoption) {
-    //   return res.status(403).json({
-    //     canReview: false,
-    //     message:
-    //       "No puedes dejar una reseña si no has completado una adopción.",
-    //   });
-    // }
+    if (!adoption) {
+      return res.status(403).json({
+        canReview: false,
+        message:
+          "No puedes dejar una reseña si no has completado una adopción.",
+      });
+    }
 
     // Si la adopción está aprobada, crear la reseña
     const newReview = await Review.create({
