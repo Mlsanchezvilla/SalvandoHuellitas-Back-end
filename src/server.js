@@ -4,32 +4,12 @@ const morgan = require("morgan");
 const cors = require("cors");
 const session = require("express-session");
 const bodyParser = require("body-parser");
-
-require("dotenv").config();
-const {
-  listPets,
-  getPet,
-  createPet,
-  changePetStatus,
-} = require("./controllers/pets");
-const {
-  listRequest,
-  createRequest,
-  updateRequest,
-} = require("./controllers/requests");
-const {
-  createUser,
-  listUser,
-  changeUserStatus,
-} = require("./controllers/users");
-
 require('dotenv').config();
 const {listPets, getPet, createPet, changePetStatus, suggestPetsForUser} = require("./controllers/pets");
 const {listRequest, createRequest, updateRequest} = require("./controllers/requests");
 const { createUser, listUser, changeUserStatus } = require("./controllers/users");
-
+const { createPaymentLink } = require("./controllers/donations");
 const createReview = require("./controllers/createReview");
-const reviewManagement = require("./controllers/reviewManagement");
 const listReview = require("./controllers/listReview");
 
 const { googleAuth, getJWT } = require("./controllers/auth");
@@ -92,6 +72,8 @@ server.post("/auth/google/", googleAuth);
 server.post("/auth/", getJWT);
 
 
+
+//* Pets endpoints
 server.get("/pets/", listPets);
 server.get("/pets/:petId/", getPet);
 server.patch("/pets/:petId/", changePetStatus);
@@ -106,10 +88,8 @@ server.post(
 server.post("/pets/suggest", suggestPetsForUser);
 
 
-//* User endpoints
-
+//* Users endpoints
 server.post("/users/", upload.fields([
-
     { name: "idCard", maxCount: 1 }, // Manejar un archivo con el campo 'image'
   ]),
   createUser
@@ -118,19 +98,21 @@ server.get("/users/", listUser);
 server.patch("/users/:userId/", changeUserStatus);
 
 //* Requests
-
 server.get("/requests/", listRequest);
-
 // Ruta para actualizar una solicitud de adopción
 server.patch("/requests/:id", updateRequest);
-
 // Ruta para crear una nueva solicitud de adopción
 server.post("/requests", createRequest);
 
+
+
+//* Donations
+server.post( "/paymentLink/", createPaymentLink);
+
+
+
 // Reviews
 server.post("/reviews/ ", createReview);
-
-server.post("/reviews/", reviewManagement);
 
 server.get("/reviews/", async (req, res) => {
   try {
