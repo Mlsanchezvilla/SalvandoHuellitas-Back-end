@@ -10,6 +10,7 @@ const client = new MercadoPagoConfig({ accessToken: process.env.MERCADOPAGO_ACCE
   //generates a mercadopago payment link
   const createPaymentLink = async (req, res) => {
       try {
+          const user = await getAuthUser(req)
           const preference = new Preference(client);
           const { amount } = req.body;
           if (!amount){return res.status(400).json({ message: "No se especifico la cantidad" });}
@@ -22,9 +23,11 @@ const client = new MercadoPagoConfig({ accessToken: process.env.MERCADOPAGO_ACCE
                     unit_price: parseInt(amount)
                   }
                 ],
+                  metadata: {
+                    id_user: user?.id
+                  }
               }
             })
-
           res.status(200).json({paymentLink: paymentPreference.init_point});
       } catch (error) {
           res.status(401).json({ message: "No se pudo generar el link de pago" });
