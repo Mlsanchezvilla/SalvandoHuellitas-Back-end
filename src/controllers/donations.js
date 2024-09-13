@@ -33,13 +33,6 @@ const client = new MercadoPagoConfig({ accessToken: process.env.MERCADOPAGO_ACCE
 
 
 
-
-  //creates a new donation on DB
-  const createDonation = (req, res) => {};
-
-
-
-
   //gets the donation list
 const listDonation = async (req, res) => {
   try {
@@ -76,7 +69,6 @@ const listDonation = async (req, res) => {
 
 
 module.exports = {
-    createDonation,
     createPaymentLink,
     listDonation
 };
