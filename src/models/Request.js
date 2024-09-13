@@ -37,7 +37,6 @@ module.exports = (sequelize) => {
       preferedSpecie: {
         type: DataTypes.ENUM("cat", "dog"),
       },
-      
       timeAvailable: {
         type: DataTypes.ENUM("0", "-1", "1", "+1"),
         allowNull: false,
