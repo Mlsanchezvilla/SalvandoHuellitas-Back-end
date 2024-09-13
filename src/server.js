@@ -4,6 +4,7 @@ const morgan = require("morgan");
 const cors = require("cors");
 const session = require("express-session");
 const bodyParser = require("body-parser");
+
 require('dotenv').config();
 const {listPets, getPet, createPet, changePetStatus, suggestPetsForUser} = require("./controllers/pets");
 const {listRequest, createRequest, updateRequest} = require("./controllers/requests");
@@ -121,5 +122,8 @@ server.get("/reviews/", async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 });
+
+// Ruta para actualizar el estado del usuario
+router.put('/users/:id', changeUserStatus);
 
 module.exports = server; //*exports server

@@ -4,12 +4,16 @@ const reviewManagement = async (req, res) => {
   const { id_user, reviewText, rating } = req.body;
 
   try {
-    // Asegúrate de que el usuario haya completado la adopción
-    const adoption = await Review.findOne({
-      where: { id_user, status: "Aprobada" },
-    });
+    // Buscar al usuario por su id
+    const user = await User.findOne({ where: { id: id_user } });
 
-    if (adoption) {
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    // Verificar si el usuario tiene al menos una adopción
+    if (user.adoptions > 0) {
+      // Crear la reseña si tiene adopciones
       const review = await Review.create({
         id_user,
         reviewText,

@@ -38,7 +38,17 @@ const listRequest = async (req, res) => {
 
 
 const updateRequest = async (req, res) => {
-    try {
+
+  try {
+    // Obtener el usuario autenticado
+    const adminUser = await getAuthUser(req); // Verificar si el usuario que hace la solicitud es administrador
+
+    // Verificar si el usuario es administrador
+    if (!adminUser || !adminUser.isAdmin) {
+        return res.status(403).json({ message: 'Solo los administradores pueden realizar esta acción' });
+    }
+
+    
         const { id } = req.params;
         const { status, comment } = req.body;
 
@@ -70,7 +80,7 @@ const updateRequest = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: 'Error al actualizar la solicitud', error });
     }
-};
+  }
 
 
 
