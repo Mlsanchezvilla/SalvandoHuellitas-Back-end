@@ -72,8 +72,6 @@ server.use("/api", router); // Asegúrate de usar el prefijo adecuado para tus r
 server.post("/auth/google/", googleAuth);
 server.post("/auth/", getJWT);
 
-
-
 //* Pets endpoints
 server.get("/pets/", listPets);
 server.get("/pets/:petId/", getPet);
@@ -88,9 +86,10 @@ server.post(
 // Ruta para filtrar mascotas con base en el formulario de adopción
 server.post("/pets/suggest", suggestPetsForUser);
 
-
 //* Users endpoints
-server.post("/users/", upload.fields([
+server.post(
+  "/users/",
+  upload.fields([
     { name: "idCard", maxCount: 1 }, // Manejar un archivo con el campo 'image'
   ]),
   createUser
@@ -105,13 +104,10 @@ server.patch("/requests/:id", updateRequest);
 // Ruta para crear una nueva solicitud de adopción
 server.post("/requests", createRequest);
 
-
-
 //* Donations
 server.post( "/paymentLink/", createPaymentLink);
 server.get( "/donations/", listDonation);
 server.post( "/webhooks/mercadopago", mercadopagoWebhook);
-
 
 
 // Reviews
