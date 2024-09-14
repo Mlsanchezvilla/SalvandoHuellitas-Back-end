@@ -86,7 +86,6 @@ const createUser = async (req, res) => {
 
 
 
-// Gets the user list with status filtering
 const listUser = async (req, res) => {
   try {
     const user = await getAuthUser(req);
@@ -94,10 +93,18 @@ const listUser = async (req, res) => {
       return res.status(403).json({ error: "Authentication required" });
     }
     if (!user.isAdmin) {
-      return res.status(403).json({ error: "Only admins can perform this action listuser" });
+      return res.status(403).json({ error: "Only admins can perform this action" });
     }
 
-    let { page = 1, status, sort = 'fullName', order = 'ASC' } = req.query;  // Added sorting and order
+    let { page = 1, status, sort = 'isActive' } = req.query;
+
+    // Default sorting by isActive and fullName
+    let order = [['isActive', 'DESC'], ['fullName', 'ASC']]; // Sort first by isActive (active first), then by fullName alphabetically
+
+    if (sort === 'fullName') {
+      order = [['fullName', 'ASC']];  // If sorting by name, sort alphabetically
+    }
+
     const itemsPerPage = 10;
     page = parseInt(page);
 
@@ -115,7 +122,7 @@ const listUser = async (req, res) => {
       where: whereClause,
       limit: itemsPerPage,
       offset: itemsPerPage * (page - 1),
-      order: [[sort, order]]  // Apply sorting here
+      order: order,  // Apply sorting here
     });
 
     const totalPages = Math.ceil(usersCount.count / itemsPerPage);
@@ -130,6 +137,10 @@ const listUser = async (req, res) => {
     res.status(500).json({ message: "Error getting the user list", error: error.message });
   }
 };
+
+
+
+
 
 
 //Changes the status of a user
