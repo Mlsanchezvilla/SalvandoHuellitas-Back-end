@@ -34,8 +34,9 @@ fs.readdirSync(path.join(__dirname, "/models"))
     modelDefiners.push(require(path.join(__dirname, "/models", file)));
   });
 
-// establishes sequelize conexion to all the models
+// establishes sequelize connection to all the models
 modelDefiners.forEach((model) => model(sequelize));
+
 // capitalizes the models' names from 'product' to 'Product'
 let entries = Object.entries(sequelize.models);
 let capsEntries = entries.map((entry) => [
@@ -50,14 +51,22 @@ UserFunction(sequelize);
 ReviewFunction(sequelize);
 RequestFunction(sequelize);
 
-// all imported  sequelize.models
+// all imported sequelize models
 // destructuring to relate the models
 const { Pet, User, Review, Request } = sequelize.models;
 
-//* model relationships
+//* Define associations (relationships)
 
+// Request belongs to User (many requests can be made by one user)
+User.hasMany(Request, { foreignKey: 'id_user' });
+Request.belongsTo(User, { foreignKey: 'id_user' });
+
+// Request belongs to Pet (many requests can be made for one pet)
+Pet.hasMany(Request, { foreignKey: 'id_pet' });
+Request.belongsTo(Pet, { foreignKey: 'id_pet' });
+
+//* Export the models and sequelize connection
 module.exports = {
-  //*sequelize
   ...sequelize.models, // to be able to import the models like: const { Product, User } = require('./db.js');
   conn: sequelize, // to import the connection { conn } = require('./db.js');
 };

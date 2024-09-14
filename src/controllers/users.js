@@ -36,8 +36,6 @@ const createUser = async (req, res) => {
     const file = req.files.idCard[0];
     const buffer = file.buffer;
     const result = await uploadImageStreamCloudinary(buffer)
-
-    console.log(result)
     const newUser = await User.create({
       isAdmin,
       fullName,
@@ -63,7 +61,6 @@ const createUser = async (req, res) => {
     try {
       // console.log('Enviando correo a:', email);
       await sgMail.send(msg);
-      console.log('Correo enviado exitosamente');
     } catch (emailError) {
       console.error('Error al enviar el correo:', emailError.message);
       return res.status(500).json({
@@ -95,16 +92,12 @@ const listUser = async (req, res) => {
       return res.status(403).json({ error: "Authentication required" });
     }
     if (!user.isAdmin) {
-      return res.status(403).json({ error: "Only admins can perform this action" });
+      return res.status(403).json({ error: "Only admins can perform this action listuser" });
     }
 
     let { page = 1, status, sort = 'fullName', order = 'ASC' } = req.query;  // Added sorting and order
     const itemsPerPage = 10;
     page = parseInt(page);
-
-    console.log('Status received from frontend:', status);  // Log the status filter received
-    console.log('Page received from frontend:', page);  // Log the page number received
-    console.log('Sort by:', sort, 'Order:', order);  // Log the sorting criteria
 
     let whereClause = {};
 
@@ -115,8 +108,6 @@ const listUser = async (req, res) => {
       whereClause.isActive = false;
     }
 
-    console.log('WhereClause to apply on DB query:', whereClause);  // Log the where clause
-
     // Fetch users with filtering, sorting, and pagination
     let usersCount = await User.findAndCountAll({
       where: whereClause,
@@ -126,9 +117,6 @@ const listUser = async (req, res) => {
     });
 
     const totalPages = Math.ceil(usersCount.count / itemsPerPage);
-
-    console.log('Total users found:', usersCount.count);  // Log total users found
-    console.log('Total pages calculated:', totalPages);  // Log total pages calculated
 
     res.status(200).json({
       page: page,
@@ -147,13 +135,12 @@ const changeUserStatus = async (req, res) => {
   try {
     const user = await getAuthUser(req)
     if(!user){return res.status(403).json({ error: "Authentication required" })}
-    if(!user.isAdmin){return res.status(403).json({ error: "Only admins can perform this action" })}
+    if(!user.isAdmin){return res.status(403).json({ error: "Only admins can perform this action change status user" })}
 
     const { isActive } = req.body;
     const { userId } = req.params;
 
     let userToChange = await User.findByPk(userId);
-    console.log(user.id);
     userToChange.isActive = isActive;
     await userToChange.save();
     res.status(200).json({ message: `Se cambio el status a ${isActive}`});
@@ -181,75 +168,47 @@ const getUser = async (req, res) => {
 // Controller to update user profile
 const updateUserProfile = async (req, res) => {
   try {
-    // Get the authenticated user from the token
-    const authUser = await getAuthUser(req);
-
+    const authUser = await getAuthUser(req); // Fetch the authenticated user from JWT
     if (!authUser) {
-      console.log("No authenticated user found");
       return res.status(403).json({ error: "Authentication required" });
     }
 
-    console.log("Authenticated user making the request:", authUser);
-
-    // Log the entire request body for debugging
-    console.log("Request body:", req.body);
-
-    const userIdFromToken = authUser.id;
-
-    // Ensure the user can only update their own profile
-    if (userIdFromToken !== authUser.id) {
-      console.log("User attempting to update a profile that is not their own");
-      return res.status(403).json({ error: "You can only update your own profile" });
-    }
-
-    // Extract fields from the request body
+    // You do not need to check `req.params.userId` here, as this route is for the authenticated user
     const { fullName, email, birthDate, phone, occupation } = req.body;
-
-    console.log('Received update request data:', { fullName, email, birthDate, phone, occupation });
-
-    // Prepare fields for update
     let updatedFields = { fullName, email, birthDate, phone, occupation };
 
-    // If a new image is uploaded, handle the image upload
+    // If the user has uploaded a new idCard, handle the file upload
     if (req.files && req.files.idCard) {
-      console.log('Uploading new idCard image...');
       const file = req.files.idCard[0];
+    
+      if (!file || !file.buffer) {
+        return res.status(400).json({ error: "No file buffer found" });
+      }
+    
       const buffer = file.buffer;
-      const result = await uploadImageStreamCloudinary(buffer);
-      updatedFields.idCard = result.secure_url; // Update idCard with the new image URL
+    
+      try {
+        const result = await uploadImageStreamCloudinary(buffer);  // Ensure this function is working
+        updatedFields.idCard = result.secure_url;
+      } catch (uploadError) {
+        return res.status(500).json({ message: "Error uploading image", error: uploadError.message });
+      }
     }
+    
 
-    // Find the user in the database
+    // Find the user by their ID (which we get from the JWT token)
     const userToUpdate = await User.findByPk(authUser.id);
     if (!userToUpdate) {
-      console.log("User not found in the database");
       return res.status(404).json({ error: "User not found" });
     }
 
-    console.log("Updating user profile with data:", updatedFields);
-
-    // Update the user with the new data
+    // Update the user's profile with the new data
     await userToUpdate.update(updatedFields);
-    console.log("User profile updated successfully");
-
-    res.status(200).json({
-      message: "User profile updated successfully",
-      object: userToUpdate,
-    });
+    return res.status(200).json({ message: "User profile updated successfully", object: userToUpdate });
   } catch (error) {
-    console.error("Error updating user profile:", error.message);
-    res.status(500).json({ message: "Error updating user profile", error: error.message });
+    return res.status(500).json({ message: "Error updating user profile", error: error.message });
   }
-};
-
-
-
-
-
-
-
-
-
+}
 
 module.exports = {
   createUser,

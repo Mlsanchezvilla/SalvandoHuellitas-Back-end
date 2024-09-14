@@ -14,28 +14,24 @@ function createJWT (user){
 // Receives a request (with a token in headers) returns a user
 const getAuthUser = async (request) => {
     const authHeader = request.headers.authorization;
-
+  
     if (!authHeader) {
-        console.log("No authorization header found");
-        return null;
+      return null;
     }
-
+  
     const [bearer, token] = authHeader.split(" ");
-    console.log("Token received in header:", token);
 
+  
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-        console.log("Decoded JWT:", decoded); // Log the decoded JWT
-
-        const user = await User.findByPk(decoded.userID);
-        console.log("User found from token:", user); // Log the retrieved user
-
-        return user;
+      const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+      const user = await User.findByPk(decoded.userID);
+      
+      return user;
     } catch (error) {
-        console.error("Error verifying JWT:", error.message);
-        throw new Error("Invalid JWT");
+      return null;  // Ensure the function returns null on failure
     }
-};
+  };
+  
 
     // Use Example:
     // const user = getAuthUser(req)

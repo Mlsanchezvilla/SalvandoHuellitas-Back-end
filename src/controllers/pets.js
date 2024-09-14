@@ -57,7 +57,7 @@ const listPets = async (req, res) => {
 
 
 
-
+// Get pet by ID
 const getPet = async (req, res) => {
   const { petId } = req.params;
   try {
@@ -69,7 +69,7 @@ const getPet = async (req, res) => {
 };
 
 
-
+// Create a new pet
 const createPet = async (req, res) => {
   try {
     const file = req.files.photo[0];
@@ -105,8 +105,7 @@ const changePetStatus = async (req, res) => {
   try {
     const user = await getAuthUser(req)
     if(!user){return res.status(403).json({ error: "Authentication required" })}
-    console.log(user)
-    if(!user.isAdmin){return res.status(403).json({ error: "Only admins can perform this action" })}
+    if(!user.isAdmin){return res.status(403).json({ error: "Only admins can perform this action pet status" })}
 
     const { petId } = req.params;
     const { status } = req.body;
