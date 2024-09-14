@@ -94,17 +94,10 @@ fs.readdirSync(path.join(__dirname, "/models"))
     }
   });
 
-<<<<<<< HEAD
-// establishes sequelize connection to all the models
-modelDefiners.forEach((model) => model(sequelize));
-
-// capitalizes the models' names from 'product' to 'Product'
-=======
 // Defines all models with sequelize
 modelDefiners.forEach((model) => model(sequelize));
 
 // Capitalizes the models' names from 'product' to 'Product'
->>>>>>> develop
 let entries = Object.entries(sequelize.models);
 let capsEntries = entries.map(([key, value]) => [
   key[0].toUpperCase() + key.slice(1),
@@ -112,39 +105,20 @@ let capsEntries = entries.map(([key, value]) => [
 ]);
 sequelize.models = Object.fromEntries(capsEntries);
 
-<<<<<<< HEAD
-//* calls the model's creation and establishes n:n relationship
-PetFunction(sequelize);
-UserFunction(sequelize);
-ReviewFunction(sequelize);
-RequestFunction(sequelize);
-
-// all imported sequelize models
-// destructuring to relate the models
-const { Pet, User, Review, Request } = sequelize.models;
-
-//* Define associations (relationships)
-=======
 // Define model relationships (example)
 // sequelize.models.User.hasMany(sequelize.models.Pet);
 // sequelize.models.Pet.belongsTo(sequelize.models.User);
->>>>>>> develop
 
 // Request belongs to User (many requests can be made by one user)
-User.hasMany(Request, { foreignKey: 'id_user' });
-Request.belongsTo(User, { foreignKey: 'id_user' });
+sequelize.models.User.hasMany(sequelize.models.Request, { foreignKey: 'id_user' });
+sequelize.models.Request.belongsTo(sequelize.models.User, { foreignKey: 'id_user' });
 
 // Request belongs to Pet (many requests can be made for one pet)
-Pet.hasMany(Request, { foreignKey: 'id_pet' });
-Request.belongsTo(Pet, { foreignKey: 'id_pet' });
+sequelize.models.Pet.hasMany(sequelize.models.Request, { foreignKey: 'id_pet' });
+sequelize.models.Request.belongsTo(sequelize.models.Pet, { foreignKey: 'id_pet' });
 
 //* Export the models and sequelize connection
 module.exports = {
-<<<<<<< HEAD
-  ...sequelize.models, // to be able to import the models like: const { Product, User } = require('./db.js');
-  conn: sequelize, // to import the connection { conn } = require('./db.js');
-=======
   ...sequelize.models, // To be able to import the models like: const { Product, User } = require('./db.js');
   conn: sequelize, // To import the connection { conn } = require('./db.js');
->>>>>>> develop
 };
