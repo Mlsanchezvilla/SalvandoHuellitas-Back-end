@@ -2,6 +2,7 @@ const axios = require("axios");
 const { User } =  require("../db");
 const {createJWT} = require("../jwt")
 const bcrypt = require("bcrypt");
+const { sendWelcomeEmail } = require ("../services/emailService.js");
 
 
 const getJWT = async (req, res) => {
@@ -57,7 +58,20 @@ const getJWT = async (req, res) => {
                 googleId: googleData.id,
                 fullName: googleData.name,
             })
+
+        // Enviar correo de bienvenida al nuevo usuario
+        try {
+            await sendWelcomeEmail(user);
+        } catch (emailError) {
+            return res.status(500).json({
+                message: "Usuario creado, pero ocurrió un error al enviar el correo de bienvenida",
+                object: user,
+                error: emailError.message,
+            });
         }
+
+
+    }
 
         let jwt = createJWT(user)
         res.status(200).json({token: jwt});

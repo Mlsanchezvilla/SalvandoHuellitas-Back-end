@@ -1,7 +1,8 @@
 const { Request, Pet, User} = require("../db");
 const {Op} = require("sequelize");
-// const sgMail = require('../services/sendgrid');
 const { getAuthUser } =  require("../jwt");
+const { requestNotification, updateRequestStatus } = require("../services/emailService")
+
 
 const listRequest = async (req, res) => {
   try {
