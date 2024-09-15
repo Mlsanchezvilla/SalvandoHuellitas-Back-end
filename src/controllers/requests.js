@@ -8,8 +8,8 @@ const listRequest = async (req, res) => {
   try {
     const user = await getAuthUser(req);
 
-    if (!user || !user.isAdmin) {
-      return res.status(403).json({ error: "Only admins can perform this action." });
+    if (!user) {
+      return res.status(403).json({ error: "Unauthorized access." });
     }
 
     let { page = 1, limit = 10, sort = 'id', order = 'ASC', status } = req.query;
@@ -17,8 +17,15 @@ const listRequest = async (req, res) => {
     limit = parseInt(limit);
 
     let whereClause = {};
+
+    // If the user is not an admin, they should only see their own requests
+    if (!user.isAdmin) {
+      whereClause.id_user = user.id; // Use 'id_user' instead of 'userId'
+    }
+
+    // Filter by status if provided
     if (status) {
-      whereClause.status = status; // Filter by status if provided
+      whereClause.status = status;
     }
 
     const requests = await Request.findAndCountAll({
@@ -44,11 +51,6 @@ const listRequest = async (req, res) => {
     res.status(500).json({ message: "Error fetching requests", error: error.message });
   }
 };
-
-
-
-
-
 
 const updateRequest = async (req, res) => {
 
