@@ -6,56 +6,49 @@ const { requestNotification, updateRequestStatus } = require("../services/emailS
 
 const listRequest = async (req, res) => {
   try {
-    // Authenticate the user
     const user = await getAuthUser(req);
 
-    // If no user is authenticated, return an error
-    if (!user) {
-      return res.status(403).json({ error: "Authentication required." });
-    }
-
-    // Only admins can access this route
-    if (!user.isAdmin) {
+    if (!user || !user.isAdmin) {
       return res.status(403).json({ error: "Only admins can perform this action." });
     }
 
-    // Retrieve query parameters for filtering and pagination
-    let { page = 1, limit = 10, sort = 'id', order = 'ASC' } = req.query;
+    let { page = 1, limit = 10, sort = 'id', order = 'ASC', status } = req.query;
     page = parseInt(page);
     limit = parseInt(limit);
 
-    // Fetch all requests, including pet details with species
+    let whereClause = {};
+    if (status) {
+      whereClause.status = status; // Filter by status if provided
+    }
+
     const requests = await Request.findAndCountAll({
+      where: whereClause,
       limit: limit,
       offset: (page - 1) * limit,
-      order: [[sort, order]],  // Sorting by the provided column and order
+      order: [[sort, order]],
       include: [
-        {
-          model: User,
-          attributes: ['fullName'], // Get the request creator's full name
-        },
-        {
-          model: Pet,
-          attributes: ['name', 'photo', 'species'], // Get the pet's name, photo, and species
-        },
+        { model: User, attributes: ['fullName'] },
+        { model: Pet, attributes: ['name', 'photo', 'species'] },
       ],
     });
 
-    // Calculate total pages
     const totalPages = Math.ceil(requests.count / limit);
 
-    // Return the list of requests with pagination data
     res.status(200).json({
-      page: page,
-      totalPages: totalPages,
+      page,
+      totalPages,
       results: requests.rows,
     });
   } catch (error) {
-    // Catch and log any error
     console.error("Error fetching requests:", error.message);
     res.status(500).json({ message: "Error fetching requests", error: error.message });
   }
 };
+
+
+
+
+
 
 const updateRequest = async (req, res) => {
 
