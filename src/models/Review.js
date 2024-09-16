@@ -20,13 +20,9 @@ module.exports = (sequelize) => {
         },
       },
 
-      id_pet: {
-        type: DataTypes.UUID,
+      user_name: {
+        type: DataTypes.STRING,
         allowNull: false,
-        references: {
-          model: "Pets",
-          key: "id",
-        },
       },
 
       isActive: {
@@ -35,7 +31,7 @@ module.exports = (sequelize) => {
       },
 
       status: {
-        type: DataTypes.ENUM("Pending", "Aprobada", "Rechazada"),
+        type: DataTypes.ENUM("Pendiente", "Aprobada", "Rechazada"),
         allowNull: false,
         defaultValue: "Pending",
       },
@@ -43,6 +39,16 @@ module.exports = (sequelize) => {
       comment: {
         type: DataTypes.STRING,
         allowNull: true,
+      },
+
+      rating: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 5,
+        validate: {
+          min: 1,
+          max: 5,
+        },
       },
 
       date: {

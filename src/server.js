@@ -5,10 +5,24 @@ const cors = require("cors");
 const session = require("express-session");
 const bodyParser = require("body-parser");
 
-require('dotenv').config();
-const {listPets, getPet, createPet, changePetStatus, suggestPetsForUser} = require("./controllers/pets");
-const {listRequest, createRequest, updateRequest} = require("./controllers/requests");
-const { createUser, listUser, changeUserStatus } = require("./controllers/users");
+require("dotenv").config();
+const {
+  listPets,
+  getPet,
+  createPet,
+  changePetStatus,
+  suggestPetsForUser,
+} = require("./controllers/pets");
+const {
+  listRequest,
+  createRequest,
+  updateRequest,
+} = require("./controllers/requests");
+const {
+  createUser,
+  listUser,
+  changeUserStatus,
+} = require("./controllers/users");
 const { createPaymentLink, listDonation } = require("./controllers/donations");
 const { mercadopagoWebhook } = require("./controllers/webhooks");
 const createReview = require("./controllers/createReview");
@@ -106,13 +120,12 @@ server.patch("/requests/:id", updateRequest);
 server.post("/requests", createRequest);
 
 //* Donations
-server.post( "/paymentLink/", createPaymentLink);
-server.get( "/donations/", listDonation);
-server.post( "/webhooks/mercadopago", mercadopagoWebhook);
-
+server.post("/paymentLink/", createPaymentLink);
+server.get("/donations/", listDonation);
+server.post("/webhooks/mercadopago", mercadopagoWebhook);
 
 // Reviews
-server.post("/reviews/ ", createReview);
+server.post("/reviews/", createReview);
 
 server.get("/reviews/", async (req, res) => {
   try {
@@ -124,6 +137,6 @@ server.get("/reviews/", async (req, res) => {
 });
 
 // Ruta para actualizar el estado del usuario
-router.put('/users/:id', changeUserStatus);
+router.put("/users/:id", changeUserStatus);
 
 module.exports = server; //*exports server
