@@ -36,15 +36,19 @@ server.use(morgan("dev"));
 
 // Test if this can be deleted
 server.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
+  res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Credentials", "true");
   res.header(
     "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
+    "Authorization, Origin, X-Requested-With, Content-Type, Accept"
   );
-  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET, POST, OPTIONS, PUT, DELETE, PATCH"
+  ); // Ensure PATCH is allowed
   next();
 });
+
 server.use(cors());
 server.use(express.json());
 server.use(bodyParser.json({ limit: "10mb" }));
@@ -110,7 +114,13 @@ server.post(
   createUser
 );
 server.get("/users/", listUser);
+server.patch(
+  "/users/profile",
+  upload.fields([{ name: "idCard", maxCount: 1 }]),
+  updateUserProfile
+);
 server.patch("/users/:userId/", changeUserStatus);
+server.get("/users/:userId", getUser);
 
 //* Requests
 server.get("/requests/", listRequest);

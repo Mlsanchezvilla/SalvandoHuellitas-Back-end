@@ -6,36 +6,51 @@ const { requestNotification, updateRequestStatus } = require("../services/emailS
 
 const listRequest = async (req, res) => {
   try {
-    // Obtain the search query parameter from query
-      let query = req.query;
-      let search = query.search;
+    const user = await getAuthUser(req);
 
-    // If search is not undefined, manage that value in the query
-    if (search) {
-        // Remove the "search" key from the query object
-        delete query.search;
-
-        // Define a query where status or preferredSpecies contain the search term (case-insensitive)
-        query[Op.or] = [
-            { status: { [Op.iLike]: "%" + search + "%" } },
-            { preferredSpecies: { [Op.iLike]: "%" + search + "%" } }
-            // Add more fields if needed
-        ];
+    if (!user) {
+      return res.status(403).json({ error: "Unauthorized access." });
     }
 
-    // Retrieve all requests that match the query
-    let requests = await Request.findAll({
-        where: query,
-        // Add pagination if limit and offset are provided in the query
-        limit: query.limit ? parseInt(query.limit) : undefined,
-        offset: query.offset ? parseInt(query.offset) : undefined,
+    let { page = 1, limit = 10, sort = 'id', order = 'ASC', status } = req.query;
+    page = parseInt(page);
+    limit = parseInt(limit);
+
+    let whereClause = {};
+
+    // If the user is not an admin, they should only see their own requests
+    if (!user.isAdmin) {
+      whereClause.id_user = user.id; // Use 'id_user' instead of 'userId'
+    }
+
+    // Filter by status if provided
+    if (status) {
+      whereClause.status = status;
+    }
+
+    const requests = await Request.findAndCountAll({
+      where: whereClause,
+      limit: limit,
+      offset: (page - 1) * limit,
+      order: [[sort, order]],
+      include: [
+        { model: User, attributes: ['fullName'] },
+        { model: Pet, attributes: ['name', 'photo', 'species'] },
+      ],
     });
-    res.status(200).json(requests);
-    } catch (error) {
-    res.status(400).json({ error: error.message });
-    }
-};
 
+    const totalPages = Math.ceil(requests.count / limit);
+
+    res.status(200).json({
+      page,
+      totalPages,
+      results: requests.rows,
+    });
+  } catch (error) {
+    console.error("Error fetching requests:", error.message);
+    res.status(500).json({ message: "Error fetching requests", error: error.message });
+  }
+};
 
 const updateRequest = async (req, res) => {
 
@@ -122,9 +137,6 @@ const createRequest = async (req, res) => {
     res.status(400).json({ message: 'Error al crear la solicitud', error: error.message });
   }
 };
-
-
-
 
 module.exports = {
   listRequest,
