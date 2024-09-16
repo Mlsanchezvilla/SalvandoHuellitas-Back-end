@@ -38,8 +38,6 @@ const createUser = async (req, res) => {
     const file = req.files.idCard[0];
     const buffer = file.buffer;
     const result = await uploadImageStreamCloudinary(buffer)
-
-    console.log(result)
     const newUser = await User.create({
       isAdmin,
       fullName,
@@ -65,7 +63,6 @@ const createUser = async (req, res) => {
     try {
       // console.log('Enviando correo a:', email);
       await sgMail.send(msg);
-      console.log('Correo enviado exitosamente');
     } catch (emailError) {
       console.error('Error al enviar el correo:', emailError.message);
       return res.status(500).json({
@@ -89,38 +86,60 @@ const createUser = async (req, res) => {
 
 
 
-//gets the user list
 const listUser = async (req, res) => {
   try {
-    const user = await getAuthUser(req)
-    if(!user){return res.status(403).json({ error: "Authentication required" })}
-    if(!user.isAdmin){return res.status(403).json({ error: "Only admins can perform this action" })}
-
-    let query = req.query;
-    let page;
-    if(query.page) {
-      page = query.page;
-    } else {
-      page = 1;
+    const user = await getAuthUser(req);
+    if (!user) {
+      return res.status(403).json({ error: "Authentication required" });
+    }
+    if (!user.isAdmin) {
+      return res.status(403).json({ error: "Only admins can perform this action" });
     }
 
-    const itemsPerPage = 10
+    let { page = 1, status, sort = 'isActive' } = req.query;
+
+    // Default sorting by isActive and fullName
+    let order = [['isActive', 'DESC'], ['fullName', 'ASC']]; // Sort first by isActive (active first), then by fullName alphabetically
+
+    if (sort === 'fullName') {
+      order = [['fullName', 'ASC']];  // If sorting by name, sort alphabetically
+    }
+
+    const itemsPerPage = 10;
     page = parseInt(page);
+
+    let whereClause = {};
+
+    // Handle filtering by active/inactive status
+    if (status === 'active') {
+      whereClause.isActive = true;
+    } else if (status === 'inactive') {
+      whereClause.isActive = false;
+    }
+
+    // Fetch users with filtering, sorting, and pagination
     let usersCount = await User.findAndCountAll({
+      where: whereClause,
       limit: itemsPerPage,
-      offset: itemsPerPage * (page-1)
+      offset: itemsPerPage * (page - 1),
+      order: order,  // Apply sorting here
     });
+
+    const totalPages = Math.ceil(usersCount.count / itemsPerPage);
 
     res.status(200).json({
       page: page,
-      totalPages: Math.ceil(usersCount / itemsPerPage),
-      results: usersCount.rows
+      totalPages: totalPages,
+      results: usersCount.rows,
     });
   } catch (error) {
-    res.status(500)
-      .json({ message: "Error getting the user list", error: error.message });
+    console.error('Error getting the user list:', error.message);  // Log the actual error for debugging
+    res.status(500).json({ message: "Error getting the user list", error: error.message });
   }
 };
+
+
+
 
 
 
@@ -129,13 +148,12 @@ const changeUserStatus = async (req, res) => {
   try {
     const user = await getAuthUser(req)
     if(!user){return res.status(403).json({ error: "Authentication required" })}
-    if(!user.isAdmin){return res.status(403).json({ error: "Only admins can perform this action" })}
+    if(!user.isAdmin){return res.status(403).json({ error: "Only admins can perform this action change status user" })}
 
     const { isActive } = req.body;
     const { userId } = req.params;
 
     let userToChange = await User.findByPk(userId);
-    console.log(user.id);
     userToChange.isActive = isActive;
     await userToChange.save();
     res.status(200).json({ message: `Se cambio el status a ${isActive}`});
@@ -145,8 +163,70 @@ const changeUserStatus = async (req, res) => {
 };
 
 
+
+// Controller to get a user by ID
+const getUser = async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const userFound = await User.findByPk(userId);
+    if (!userFound) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.status(200).json(userFound);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Controller to update user profile
+const updateUserProfile = async (req, res) => {
+  try {
+    const authUser = await getAuthUser(req); // Fetch the authenticated user from JWT
+    if (!authUser) {
+      return res.status(403).json({ error: "Authentication required" });
+    }
+
+    // You do not need to check `req.params.userId` here, as this route is for the authenticated user
+    const { fullName, email, birthDate, phone, occupation } = req.body;
+    let updatedFields = { fullName, email, birthDate, phone, occupation };
+
+    // If the user has uploaded a new idCard, handle the file upload
+    if (req.files && req.files.idCard) {
+      const file = req.files.idCard[0];
+    
+      if (!file || !file.buffer) {
+        return res.status(400).json({ error: "No file buffer found" });
+      }
+    
+      const buffer = file.buffer;
+    
+      try {
+        const result = await uploadImageStreamCloudinary(buffer);  // Ensure this function is working
+        updatedFields.idCard = result.secure_url;
+      } catch (uploadError) {
+        return res.status(500).json({ message: "Error uploading image", error: uploadError.message });
+      }
+    }
+    
+
+    // Find the user by their ID (which we get from the JWT token)
+    const userToUpdate = await User.findByPk(authUser.id);
+    if (!userToUpdate) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Update the user's profile with the new data
+    await userToUpdate.update(updatedFields);
+    return res.status(200).json({ message: "User profile updated successfully", object: userToUpdate });
+  } catch (error) {
+    return res.status(500).json({ message: "Error updating user profile", error: error.message });
+  }
+}
+
 module.exports = {
   createUser,
   listUser,
-  changeUserStatus
+  changeUserStatus,
+  getUser,
+  updateUserProfile,
 };

@@ -109,6 +109,15 @@ sequelize.models = Object.fromEntries(capsEntries);
 // sequelize.models.User.hasMany(sequelize.models.Pet);
 // sequelize.models.Pet.belongsTo(sequelize.models.User);
 
+// Request belongs to User (many requests can be made by one user)
+sequelize.models.User.hasMany(sequelize.models.Request, { foreignKey: 'id_user' });
+sequelize.models.Request.belongsTo(sequelize.models.User, { foreignKey: 'id_user' });
+
+// Request belongs to Pet (many requests can be made for one pet)
+sequelize.models.Pet.hasMany(sequelize.models.Request, { foreignKey: 'id_pet' });
+sequelize.models.Request.belongsTo(sequelize.models.Pet, { foreignKey: 'id_pet' });
+
+//* Export the models and sequelize connection
 module.exports = {
   ...sequelize.models, // To be able to import the models like: const { Product, User } = require('./db.js');
   conn: sequelize, // To import the connection { conn } = require('./db.js');
