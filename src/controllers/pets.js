@@ -57,6 +57,9 @@ const listPets = async (req, res) => {
 
 const suggestPetsForUser = async (req, res) => {
   try {
+
+    // Verifica los datos recibidos en el backend
+    console.log("Datos recibidos en el backend:", req.body);
     // Obtener las respuestas del formulario del cuerpo de la solicitud
     const { timeAvailable, space, totalHabitants, hasPets, hasKids, addedCondition } = req.body;
 
@@ -64,9 +67,21 @@ const suggestPetsForUser = async (req, res) => {
     let query = {
       status: "available",  // Solo sugerir mascotas disponibles
       size: space,          // Tamaño de la mascota debe coincidir con el espacio disponible
-      okWithPets: hasPets,  // Compatibilidad con otras mascotas
-      okWithKids: hasKids,  // Compatibilidad con niños
+     
     };
+
+    // Si el usuario tiene mascotas, filtramos mascotas compatibles con otras mascotas
+    if (hasPets === true) {
+      query.okWithPets = true;
+    }
+
+    // Si el usuario tiene niños, filtramos mascotas compatibles con niños
+    if (hasKids === true) {
+      query.okWithKids = true;
+    }
+    
+    // Aquí agregas el console.log para verificar la consulta que se está enviando
+    console.log("Query enviada a la base de datos:", query);
 
     // Filtrar según el nivel de energía en función del tiempo disponible
     if (timeAvailable) {
@@ -77,12 +92,17 @@ const suggestPetsForUser = async (req, res) => {
       }
     }
 
+        // Log para ver la consulta final antes de la búsqueda
+        console.log("Consulta final enviada a la base de datos:", query);
+
     // Consulta a la base de datos de las mascotas que coincidan con el filtro
     const matchingPets = await Pet.findAll({ where: query });
+    console.log("Mascotas encontradas:", matchingPets);
 
     // Retornar las mascotas que hacen match con las respuestas del formulario
     res.status(200).json(matchingPets);
   } catch (error) {
+    console.error("Error en la consulta de sugerencias de mascotas:", error);
     res.status(400).json({ error: error.message });
   }
 };

@@ -93,10 +93,11 @@ server.post("/pets/suggest", suggestPetsForUser);
 
 
 // User endpoints
+server.get("/users/", listUser);
 server.post("/users/", upload.fields([
     { name: "idCard", maxCount: 1 }, // Manejar un archivo con el campo 'image'
   ]), createUser);
-server.get("/users/", listUser);
+
 server.patch("/users/:userId/", changeUserStatus);
 
 
