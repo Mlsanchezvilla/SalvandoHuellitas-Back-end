@@ -22,6 +22,8 @@ const {
   createUser,
   listUser,
   changeUserStatus,
+  getUser,
+  updateUserProfile,
 } = require("./controllers/users");
 const { createPaymentLink, listDonation } = require("./controllers/donations");
 const { mercadopagoWebhook } = require("./controllers/webhooks");
