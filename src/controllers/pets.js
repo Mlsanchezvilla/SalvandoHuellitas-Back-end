@@ -61,37 +61,64 @@ const listPets = async (req, res) => {
 
 const suggestPetsForUser = async (req, res) => {
   try {
-    // Obtener las respuestas del formulario del cuerpo de la solicitud
-    const { timeAvailable, space, totalHabitants, hasPets, hasKids, addedCondition } = req.body;
+    console.log("Datos recibidos en el backend:", req.body);
 
-    // Construir la consulta para filtrar mascotas basadas en las respuestas del formulario
+    
+    const { timeAvailable, space, hasPets, hasKids, addedCondition  } = req.body;
+
     let query = {
       status: "available",  // Solo sugerir mascotas disponibles
-      size: space,          // Tamaño de la mascota debe coincidir con el espacio disponible
-      okWithPets: hasPets,  // Compatibilidad con otras mascotas
-      okWithKids: hasKids,  // Compatibilidad con niños
     };
 
-    // Filtrar según el nivel de energía en función del tiempo disponible
-    if (timeAvailable) {
-      if (timeAvailable === "0" || timeAvailable === "-1") {
-        query.energyLevel = { [Op.or]: ["low", "medium"] }; // Mascotas de baja o media energía si hay poco tiempo
-      } else if (timeAvailable === "1" || timeAvailable === "+1") {
-        query.energyLevel = { [Op.or]: ["medium", "high"] }; // Mascotas de media o alta energía si hay más tiempo
-      }
+    // Si el usuario tiene mascotas, filtramos mascotas compatibles con otras mascotas
+    if (hasPets === true) {
+      query.okWithPets = true;
     }
+
+    // Si el usuario tiene niños, filtramos mascotas compatibles con niños
+    if (hasKids === true) {
+      query.okWithKids = true;
+    }
+
+    // Filtrar por tamaño según el espacio
+    let sizeFilter = [];
+    if (space === 'small') {
+      sizeFilter = ['small'];
+    } else if (space === 'medium') {
+      sizeFilter = ['small', 'medium'];
+    } else if (space === 'large') {
+      sizeFilter = ['small', 'medium', 'large'];
+    }
+
+    query.size = { [Op.or]: sizeFilter };
+
+    // Filtrar según el nivel de energía en función del tiempo disponible
+    let energyFilter = [];
+    if (timeAvailable === '0') {
+      // No mostrar ninguna mascota si no tienen tiempo disponible
+      return res.status(200).json([]); // Retornar un arreglo vacío si no hay tiempo disponible
+    } else if (timeAvailable === '-1') {
+      energyFilter = ['low', 'medium']; // Algo de tiempo = energía baja o media
+    } else if (timeAvailable === '1') {
+      energyFilter = ['low', 'medium']; // Medio tiempo = solo energía baja o media, no high
+    } else if (timeAvailable === '+1') {
+      energyFilter = ['low', 'medium', 'high']; // Mucho tiempo = cualquier nivel de energía
+    }
+
+    // Asignar el filtro de energía
+    query.energyLevel = { [Op.or]: energyFilter };
+
 
     // Consulta a la base de datos de las mascotas que coincidan con el filtro
     const matchingPets = await Pet.findAll({ where: query });
-
+    
     // Retornar las mascotas que hacen match con las respuestas del formulario
     res.status(200).json(matchingPets);
   } catch (error) {
+    console.error("Error en la consulta de sugerencias de mascotas:", error);
     res.status(400).json({ error: error.message });
   }
 };
-
-
 
 
 
