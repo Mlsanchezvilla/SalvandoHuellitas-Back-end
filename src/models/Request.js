@@ -62,11 +62,10 @@ module.exports = (sequelize) => {
         allowNull: false,
       },
 
-      addedCondition: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-      },
-
+      commet: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      }
     },
     {
       timestamps: false,
