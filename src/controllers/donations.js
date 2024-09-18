@@ -28,7 +28,8 @@ const client = new MercadoPagoConfig({ accessToken: process.env.MERCADOPAGO_ACCE
                   }
               }
             })
-          res.status(200).json({paymentLink: paymentPreference.init_point});
+          console.log(paymentPreference);
+          res.status(200).json({paymentLink: paymentPreference.sandbox_init_point});
       } catch (error) {
           res.status(401).json({ message: "No se pudo generar el link de pago" });
       }

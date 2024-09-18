@@ -22,7 +22,7 @@ module.exports = (sequelize) => {
 
       user_name: {
         type: DataTypes.STRING,
-        allowNull: false,
+        //allowNull: false,
       },
 
       isActive: {
