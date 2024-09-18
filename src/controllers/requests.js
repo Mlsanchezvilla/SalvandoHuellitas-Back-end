@@ -1,45 +1,69 @@
 const { Request, Pet, User} = require("../db");
 const {Op} = require("sequelize");
-const sgMail = require('../services/sendgrid');
 const { getAuthUser } =  require("../jwt");
-
+const { requestNotification, updateRequestStatus } = require("../services/emailService")
 
 
 const listRequest = async (req, res) => {
   try {
-    // Obtain the search query parameter from query
-      let query = req.query;
-      let search = query.search;
+    const user = await getAuthUser(req);
 
-    // If search is not undefined, manage that value in the query
-    if (search) {
-        // Remove the "search" key from the query object
-        delete query.search;
-
-        // Define a query where status or preferredSpecies contain the search term (case-insensitive)
-        query[Op.or] = [
-            { status: { [Op.iLike]: "%" + search + "%" } },
-            { preferredSpecies: { [Op.iLike]: "%" + search + "%" } }
-            // Add more fields if needed
-        ];
+    if (!user) {
+      return res.status(403).json({ error: "Unauthorized access." });
     }
 
-    // Retrieve all requests that match the query
-    let requests = await Request.findAll({
-        where: query,
-        // Add pagination if limit and offset are provided in the query
-        limit: query.limit ? parseInt(query.limit) : undefined,
-        offset: query.offset ? parseInt(query.offset) : undefined,
+    let { page = 1, limit = 10, sort = 'id', order = 'ASC', status } = req.query;
+    page = parseInt(page);
+    limit = parseInt(limit);
+
+    let whereClause = {};
+
+    // If the user is not an admin, they should only see their own requests
+    if (!user.isAdmin) {
+      whereClause.id_user = user.id; // Use 'id_user' instead of 'userId'
+    }
+
+    // Filter by status if provided
+    if (status) {
+      whereClause.status = status;
+    }
+
+    const requests = await Request.findAndCountAll({
+      where: whereClause,
+      limit: limit,
+      offset: (page - 1) * limit,
+      order: [[sort, order]],
+      include: [
+        { model: User, attributes: ['fullName'] },
+        { model: Pet, attributes: ['name', 'photo', 'species'] },
+      ],
     });
-    res.status(200).json(requests);
-    } catch (error) {
-    res.status(400).json({ error: error.message });
-    }
+
+    const totalPages = Math.ceil(requests.count / limit);
+
+    res.status(200).json({
+      page,
+      totalPages,
+      results: requests.rows,
+    });
+  } catch (error) {
+    console.error("Error fetching requests:", error.message);
+    res.status(500).json({ message: "Error fetching requests", error: error.message });
+  }
 };
 
-
 const updateRequest = async (req, res) => {
-    try {
+
+  try {
+    // Obtener el usuario autenticado
+    const adminUser = await getAuthUser(req); // Verificar si el usuario que hace la solicitud es administrador
+
+    // Verificar si el usuario es administrador
+    if (!adminUser || !adminUser.isAdmin) {
+        return res.status(403).json({ message: 'Solo los administradores pueden realizar esta acción' });
+    }
+
+    
         const { id } = req.params;
         const { status, comment } = req.body;
 
@@ -64,32 +88,14 @@ const updateRequest = async (req, res) => {
         await request.save();
 
 
+         // Enviar el correo según el estado
+        await updateRequestStatus(request.user.email, request.user.fullName, status, comment);
 
-         // Enviar notificación por correo
-      const msg = {
-            to: request.user.email,
-            from: 'cinthyasem@gmail.com', 
-            subject: `Estado de tu solicitud de adopción: ${status}`,
-            text: `Hola ${request.user.fullName},\n\nTu solicitud de adopción ha sido ${status}.\nComentario: ${comment}\n\nGracias por ayudarnos a Salvar Huellitas.`,
-            html: `<p>Hola ${request.user.fullName},</p>
-                  <p>Tu solicitud de adopción ha sido <strong>${status}</strong>.</p>
-                  <p>Comentario: ${comment}</p>
-                  <p>Gracias por ayudarnos a Salvar Huellitas.</p>`
-      };
-
-      try {
-          await sgMail.send(msg);
-      } catch (error) {
-          console.error("Error al enviar el correo:", error);
-          return res.status(500).json({ message: 'Error al enviar el correo de notificación' });
-      }
-
-        
         res.status(200).json({ message: 'Solicitud actualizada exitosamente', request});
     } catch (error) {
         res.status(500).json({ message: 'Error al actualizar la solicitud', error });
     }
-};
+  }
 
 
 
@@ -122,14 +128,15 @@ const createRequest = async (req, res) => {
         petFound.status = "onHold";
         await petFound.save();
     }
+
+    // Enviar correo de notificación de solicitud de adopción
+    await requestNotification(user, newRequest.id, petFound ? petFound.name : null);
+
     res.status(201).json(newRequest);
   } catch (error) {
     res.status(400).json({ message: 'Error al crear la solicitud', error: error.message });
   }
 };
-
-
-
 
 module.exports = {
   listRequest,

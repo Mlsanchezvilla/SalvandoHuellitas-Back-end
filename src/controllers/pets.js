@@ -6,46 +6,50 @@ const uploadImageStreamCloudinary = require("../config/uploadImageStreamCloudina
 
 const listPets = async (req, res) => {
   try {
-    let {status, search, page, species, age, size, energyLevel, okWithPets, okWithKids, gender} = req.query;
+    let { status, search, page, species, age, size, energyLevel, okWithPets, okWithKids, gender, sort } = req.query;
 
-    status = status || 'available';
+    // Default sorting by status (available first, then inactive)
+    let order = [['status', 'ASC'], ['name', 'ASC']];  // Sort first by status, then by name
+    
+    if (sort === 'name') {
+      order = [['name', 'ASC']];  // If sorting by name
+    }
 
-    // rebuild query with variables to filter
-    let query = {status, species, age, size, energyLevel, okWithPets, okWithKids, gender}
+    // Build query with variables to filter
+    let query = { status, species, age, size, energyLevel, okWithPets, okWithKids, gender };
 
-    // checks for undefined or null query params and removes them from query
+    // Remove undefined or empty fields from the query
     for (let queryKey in query) {
-        if (!query[queryKey]){
-            delete query[queryKey]
-        }
+      if (!query[queryKey]) {
+        delete query[queryKey];
+      }
     }
 
     // Pagination Variables
     const itemsPerPage = 12;
     page = parseInt(page);
 
-    // If search is not undefined we should manage that value on query
-    if (search){
-        // Define a query where breed is iLike search term or name is iLike search term
-        // (Check sequelize doc)
-        query[Op.or] = [
-            {breed: {[Op.iLike]:"%"+search+"%"}},
-            {name: {[Op.iLike]:"%"+search+"%"}},
-        ]
+    // If search is provided, handle search criteria
+    if (search) {
+      query[Op.or] = [
+        { breed: { [Op.iLike]: `%${search}%` } },
+        { name: { [Op.iLike]: `%${search}%` } },
+      ];
     }
 
-    let petsCount = await Pet.findAndCountAll({
-        where: query,
-        limit: itemsPerPage,
-        offset: itemsPerPage * (page-1),
+    // Fetch pets with pagination and sorting
+    const petsCount = await Pet.findAndCountAll({
+      where: query,
+      limit: itemsPerPage,
+      offset: itemsPerPage * (page - 1),
+      order: order,  // Apply the order for sorting
     });
 
     res.status(200).json({
-        page: page,
-        totalPages: Math.ceil(petsCount.count / itemsPerPage),
-        results: petsCount.rows,
+      page: page,
+      totalPages: Math.ceil(petsCount.count / itemsPerPage),
+      results: petsCount.rows,
     });
-
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -124,7 +128,7 @@ const getPet = async (req, res) => {
 };
 
 
-
+// Create a new pet
 const createPet = async (req, res) => {
   try {
     const file = req.files.photo[0];
@@ -160,8 +164,7 @@ const changePetStatus = async (req, res) => {
   try {
     const user = await getAuthUser(req)
     if(!user){return res.status(403).json({ error: "Authentication required" })}
-    console.log(user)
-    if(!user.isAdmin){return res.status(403).json({ error: "Only admins can perform this action" })}
+    if(!user.isAdmin){return res.status(403).json({ error: "Only admins can perform this action pet status" })}
 
     const { petId } = req.params;
     const { status } = req.body;

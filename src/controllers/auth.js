@@ -2,7 +2,8 @@ const axios = require("axios");
 const { User } =  require("../db");
 const {createJWT} = require("../jwt")
 const bcrypt = require("bcrypt");
-const sgMail = require('../services/sendgrid');
+const { sendWelcomeEmail } = require ("../services/emailService.js");
+
 
 const getJWT = async (req, res) => {
     try {
@@ -58,26 +59,17 @@ const getJWT = async (req, res) => {
                 fullName: googleData.name,
             })
 
-// Enviar correo de bienvenida al nuevo usuario
-        const msg = {
-            to: user.email,
-            from: 'cinthyasem@gmail.com',
-            templateId: 'd-0046d074e98948bf9d7b22ddda836e44',
-            dynamic_template_data: { fullName: user.fullName }
-        };
-
+        // Enviar correo de bienvenida al nuevo usuario
         try {
-            await sgMail.send(msg);
-            console.log('Correo de bienvenida enviado exitosamente');
+            await sendWelcomeEmail(user);
         } catch (emailError) {
-            console.error('Error al enviar el correo de bienvenida:', emailError.message);
             return res.status(500).json({
                 message: "Usuario creado, pero ocurrió un error al enviar el correo de bienvenida",
                 object: user,
-                error: emailError.message
+                error: emailError.message,
             });
         }
-        
+
 
     }
 

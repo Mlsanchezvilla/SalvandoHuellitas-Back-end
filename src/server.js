@@ -4,10 +4,29 @@ const morgan = require("morgan");
 const cors = require("cors");
 const session = require("express-session");
 const bodyParser = require("body-parser");
-require('dotenv').config();
-const {listPets, getPet, createPet, changePetStatus, suggestPetsForUser} = require("./controllers/pets");
-const {listRequest, createRequest, updateRequest} = require("./controllers/requests");
-const { createUser, listUser, changeUserStatus } = require("./controllers/users");
+
+require("dotenv").config();
+const {
+  listPets,
+  getPet,
+  createPet,
+  changePetStatus,
+  suggestPetsForUser,
+} = require("./controllers/pets");
+const {
+  listRequest,
+  createRequest,
+  updateRequest,
+} = require("./controllers/requests");
+const {
+  createUser,
+  listUser,
+  changeUserStatus,
+  getUser,
+  updateUserProfile,
+} = require("./controllers/users");
+const { createPaymentLink, listDonation } = require("./controllers/donations");
+const { mercadopagoWebhook } = require("./controllers/webhooks");
 const createReview = require("./controllers/createReview");
 const listReview = require("./controllers/listReview");
 
@@ -19,15 +38,19 @@ server.use(morgan("dev"));
 
 // Test if this can be deleted
 server.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
+  res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Credentials", "true");
   res.header(
     "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
+    "Authorization, Origin, X-Requested-With, Content-Type, Accept"
   );
-  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET, POST, OPTIONS, PUT, DELETE, PATCH"
+  ); // Ensure PATCH is allowed
   next();
 });
+
 server.use(cors());
 server.use(express.json());
 server.use(bodyParser.json({ limit: "10mb" }));
@@ -37,53 +60,46 @@ server.use(
 );
 //
 
-
 server.use(router);
-
 
 const multer = require("multer");
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-server.post('/api/mail', async(req, res) => {
-  const { to, subject, text, html} = req.body;
+server.post("/api/mail", async (req, res) => {
+  const { to, subject, text, html } = req.body;
 
   const msg = {
     to,
-    from: 'cinthyasem@gmail.com',
+    from: "cinthyasem@gmail.com",
     subject,
     text,
     html,
-    
   };
 
-  try{
+  try {
     await sgMail.send(msg);
-  }catch(err){
-   return res.status(err.code).send(err.message);
+  } catch (err) {
+    return res.status(err.code).send(err.message);
   }
 
   res.status(201).send({ success: true });
 });
 
-
 // Rutas principales
 server.use("/api", router); // Asegúrate de usar el prefijo adecuado para tus rutas
-
-
 
 // Auth
 server.post("/auth/google/", googleAuth);
 server.post("/auth/", getJWT);
 
-
-
-// Pets endpoints
+//* Pets endpoints
 server.get("/pets/", listPets);
 server.get("/pets/:petId/", getPet);
 server.patch("/pets/:petId/", changePetStatus);
 server.post(
-  "/pets/", upload.fields([
+  "/pets/",
+  upload.fields([
     { name: "photo", maxCount: 1 }, // Manejar un archivo con el campo 'image'
   ]),
   createPet
@@ -92,39 +108,38 @@ server.post(
 server.post("/pets/suggest", suggestPetsForUser);
 
 
-// User endpoints
-server.get("/users/", listUser);
-server.post("/users/", upload.fields([
+//* Users endpoints
+server.post(
+  "/users/",
+  upload.fields([
     { name: "idCard", maxCount: 1 }, // Manejar un archivo con el campo 'image'
-  ]), createUser);
+  ]),
+  createUser
+);
+server.get("/users/", listUser);
+server.patch(
+  "/users/profile",
+  upload.fields([{ name: "idCard", maxCount: 1 }]),
+  updateUserProfile
+);
 
 server.patch("/users/:userId/", changeUserStatus);
-
-
+server.get("/users/:userId", getUser);
 
 //* Requests
-
 server.get("/requests/", listRequest);
-
 // Ruta para actualizar una solicitud de adopción
 server.patch("/requests/:id", updateRequest);
-
 // Ruta para crear una nueva solicitud de adopción
 server.post("/requests", createRequest);
 
-
-
-
+//* Donations
+server.post("/paymentLink/", createPaymentLink);
+server.get("/donations/", listDonation);
+server.post("/webhooks/mercadopago", mercadopagoWebhook);
 
 // Reviews
-server.post("/reviews/", async (req, res) => {
-  try {
-    const newReview = await createReview(req.body);
-    res.status(200).json(newReview);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
+server.post("/reviews/", createReview);
 
 server.get("/reviews/", async (req, res) => {
   try {
@@ -135,6 +150,7 @@ server.get("/reviews/", async (req, res) => {
   }
 });
 
-
+// Ruta para actualizar el estado del usuario
+router.put("/users/:id", changeUserStatus);
 
 module.exports = server; //*exports server
