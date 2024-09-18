@@ -178,7 +178,6 @@ const getUser = async (req, res) => {
   }
 };
 
-// Controller to update user profile
 const updateUserProfile = async (req, res) => {
   try {
     const authUser = await getAuthUser(req); // Fetch the authenticated user from JWT
@@ -186,11 +185,16 @@ const updateUserProfile = async (req, res) => {
       return res.status(403).json({ error: "Authentication required" });
     }
 
-    // You do not need to check `req.params.userId` here, as this route is for the authenticated user
+    // Get the fields from the request body
     const { fullName, email, birthDate, phone, occupation } = req.body;
-    let updatedFields = { fullName, email, birthDate, phone, occupation };
 
-    // If the user has uploaded a new idCard, handle the file upload
+    // Prepare the updated fields object
+    let updatedFields = { fullName, email, phone, occupation };
+
+    // Check if the birthDate is valid, if not set it to null
+    updatedFields.birthDate = birthDate && !isNaN(Date.parse(birthDate)) ? birthDate : null;
+
+    // Handle file upload for the idCard if provided
     if (req.files && req.files.idCard) {
       const file = req.files.idCard[0];
     
@@ -208,7 +212,6 @@ const updateUserProfile = async (req, res) => {
       }
     }
     
-
     // Find the user by their ID (which we get from the JWT token)
     const userToUpdate = await User.findByPk(authUser.id);
     if (!userToUpdate) {
@@ -221,7 +224,8 @@ const updateUserProfile = async (req, res) => {
   } catch (error) {
     return res.status(500).json({ message: "Error updating user profile", error: error.message });
   }
-}
+};
+
 
 module.exports = {
   createUser,
