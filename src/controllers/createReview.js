@@ -37,7 +37,7 @@ const createReview = async (req, res) => {
       });
     }
 
-    // Si la adopción está aprobada, crear la reseña
+    // Si la adopción está aprobada, crear la reseña.
     const newReview = await Review.create({
       id_user,
       status,
