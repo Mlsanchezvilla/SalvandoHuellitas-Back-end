@@ -23,7 +23,7 @@ const listReview = async (query) => {
 
   // Retrieve all reviews that match the query
   let reviews = await Review.findAll({
-    where: query,
+    // where: query,
   });
 
   // Return the list of reviews
