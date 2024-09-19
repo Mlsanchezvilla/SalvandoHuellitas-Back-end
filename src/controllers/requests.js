@@ -69,28 +69,15 @@ const updateRequest = async (req, res) => {
         console.log(comment);
         
           // Encontrar la solicitud por su id e incluir la información del usuario asociado
-        let request = await Request.findByPk(id, {
-          
-          include: {
-              model: User, // Modelo del usuario
-              attributes: ['email', 'fullName', 'adoptions' ] // Campos que necesitas
-
-          }
-          
-      });
-
-      console.log(request);
-
-
-      let user = await User.findByPk(
-        request.id_user);
-        console.log(user);
-        
-
+        let request = await Request.findByPk(id);
         if (!request) {
             return res.status(404).json({ message: 'Solicitud no encontrada' });
           }
+      console.log(request);
 
+      let user = await User.findByPk(request.id_user);
+        console.log(user);
+        
 
         // Actualizar el estado y comentario de la solicitud
         request.status = status;
@@ -103,11 +90,10 @@ const updateRequest = async (req, res) => {
         console.log(request.comment);
         console.log(request.status);
 
-        user.adoptions = adoptions + 1;
+        user.adoptions = user.adoptions + 1;
         console.log(user.adoptions);
         await user.save();
         console.log(user.adoptions);
-        
 
          // Enviar el correo según el estado
         await updateRequestStatus(request.user.email, request.user.fullName, status, comment);
