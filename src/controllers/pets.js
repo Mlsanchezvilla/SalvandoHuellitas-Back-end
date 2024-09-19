@@ -64,7 +64,7 @@ const suggestPetsForUser = async (req, res) => {
     console.log("Datos recibidos en el backend:", req.body);
 
     
-    const { timeAvailable, space, hasPets, hasKids, addedCondition  } = req.body;
+    const { timeAvailable, space, hasPets, hasKids } = req.body;
 
     let query = {
       status: "available",  // Solo sugerir mascotas disponibles
@@ -98,9 +98,9 @@ const suggestPetsForUser = async (req, res) => {
       // No mostrar ninguna mascota si no tienen tiempo disponible
       return res.status(200).json([]); // Retornar un arreglo vacío si no hay tiempo disponible
     } else if (timeAvailable === '-1') {
-      energyFilter = ['low', 'medium']; // Algo de tiempo = energía baja o media
+      energyFilter = ['low']; // poco de tiempo = energía baja o media
     } else if (timeAvailable === '1') {
-      energyFilter = ['low', 'medium']; // Medio tiempo = solo energía baja o media, no high
+      energyFilter = ['low', 'medium']; // algo tiempo = solo energía baja o media, no high
     } else if (timeAvailable === '+1') {
       energyFilter = ['low', 'medium', 'high']; // Mucho tiempo = cualquier nivel de energía
     }
