@@ -62,7 +62,7 @@ module.exports = (sequelize) => {
         allowNull: false,
       },
 
-      commet: {
+      comment: {
         type: DataTypes.TEXT,
         allowNull: true,
       }

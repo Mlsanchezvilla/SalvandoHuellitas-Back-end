@@ -63,30 +63,51 @@ const updateRequest = async (req, res) => {
         return res.status(403).json({ message: 'Solo los administradores pueden realizar esta acción' });
     }
 
-    
         const { id } = req.params;
         const { status, comment } = req.body;
-
+        console.log(id);
+        console.log(comment);
         
           // Encontrar la solicitud por su id e incluir la información del usuario asociado
         let request = await Request.findByPk(id, {
+          
           include: {
               model: User, // Modelo del usuario
-              attributes: ['email', 'fullName'] // Campos que necesitas
+              attributes: ['email', 'fullName', 'adoptions' ] // Campos que necesitas
+
           }
+          
       });
+
+      console.log(request);
+
+
+      let user = await User.findByPk(
+        request.id_user);
+        console.log(user);
         
+
         if (!request) {
             return res.status(404).json({ message: 'Solicitud no encontrada' });
           }
 
 
-
         // Actualizar el estado y comentario de la solicitud
         request.status = status;
-        request.comment = comment;
-        await request.save();
+        console.log(request.status);
 
+        request.comment = comment;
+        console.log(request.comment);
+
+        await request.save();
+        console.log(request.comment);
+        console.log(request.status);
+
+        user.adoptions = adoptions + 1;
+        console.log(user.adoptions);
+        await user.save();
+        console.log(user.adoptions);
+        
 
          // Enviar el correo según el estado
         await updateRequestStatus(request.user.email, request.user.fullName, status, comment);
@@ -97,6 +118,8 @@ const updateRequest = async (req, res) => {
     }
   }
 
+
+  
 
 
 const createRequest = async (req, res) => {
@@ -121,7 +144,6 @@ const createRequest = async (req, res) => {
         totalHabitants,
         hasPets,
         hasKids,
-        addedCondition,
         id_user: user.id,
     });
     if(petFound){
