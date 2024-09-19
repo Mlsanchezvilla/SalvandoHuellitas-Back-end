@@ -95,12 +95,13 @@ const updateRequest = async (req, res) => {
         await user.save();
         console.log(user.adoptions);
 
-         // Enviar el correo según el estado
-        await updateRequestStatus(request.user.email, request.user.fullName, status, comment);
+        //  // Enviar el correo según el estado
+        // await updateRequestStatus(user.email, user.fullName, status, comment);
 
-        res.status(200).json({ message: 'Solicitud actualizada exitosamente', request});
-    } catch (error) {
-        res.status(500).json({ message: 'Error al actualizar la solicitud', error });
+        return res.status(200).json({ message: 'Solicitud actualizada exitosamente', request});
+    } catch (error) { 
+      console.log(error);
+        return res.status(500).json({ message: 'Error al actualizar la solicitud', error });
     }
   }
 
