@@ -23,13 +23,19 @@ const client = new MercadoPagoConfig({ accessToken: process.env.MERCADOPAGO_ACCE
                     unit_price: parseInt(amount)
                   }
                 ],
+                  back_urls: {
+                    success: 'https://salvandohuellitas-front-end-production-5e5d.up.railway.app/thankyou',
+                    pending: 'https://salvandohuellitas-front-end-production-5e5d.up.railway.app/home',
+                    failure: 'https://salvandohuellitas-front-end-production-5e5d.up.railway.app/home'
+                  },
                   metadata: {
                     id_user: user?.id
                   }
+
               }
             })
           console.log(paymentPreference);
-          res.status(200).json({paymentLink: paymentPreference.sandbox_init_point});
+          res.status(200).json({paymentLink: paymentPreference.init_point});
       } catch (error) {
           res.status(401).json({ message: "No se pudo generar el link de pago" });
       }
