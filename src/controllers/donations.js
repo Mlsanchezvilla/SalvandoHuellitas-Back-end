@@ -24,7 +24,7 @@ const client = new MercadoPagoConfig({ accessToken: process.env.MERCADOPAGO_ACCE
                   }
                 ],
                   back_urls: {
-                    success: 'https://salvandohuellitas-front-end-production-5e5d.up.railway.app/thankyou',
+                    success: 'https://salvandohuellitas-front-end-production-5e5d.up.railway.app/home',
                     pending: 'https://salvandohuellitas-front-end-production-5e5d.up.railway.app/home',
                     failure: 'https://salvandohuellitas-front-end-production-5e5d.up.railway.app/home'
                   },
