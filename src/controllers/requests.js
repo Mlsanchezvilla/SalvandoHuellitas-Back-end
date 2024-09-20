@@ -77,7 +77,7 @@ const updateRequest = async (req, res) => {
 
       let user = await User.findByPk(request.id_user);
         console.log(user);
-        
+        let pet = await Pet.findByPk(request.id_pet);
 
         // Actualizar el estado y comentario de la solicitud
         request.status = status;
@@ -87,6 +87,13 @@ const updateRequest = async (req, res) => {
         console.log(request.comment);
 
         await request.save();
+
+        if (status === "approved"){
+            pet.status = "adopted"
+        } else if (status === "denied"){
+            pet.status = "available"
+        }
+        await pet.save()
         console.log(request.comment);
         console.log(request.status);
 
