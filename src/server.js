@@ -17,6 +17,7 @@ const {
   listRequest,
   createRequest,
   updateRequest,
+  getRequestById,
 } = require("./controllers/requests");
 const {
   createUser,
@@ -130,6 +131,8 @@ server.get("/requests/", listRequest);
 server.patch("/requests/:id", updateRequest);
 // Ruta para crear una nueva solicitud de adopción
 server.post("/requests", createRequest);
+// Ruta para buscar solicitudes por id
+server.get("/requests/:id", getRequestById);
 
 //* Donations
 server.post("/paymentLink/", createPaymentLink);
