@@ -52,6 +52,7 @@ const listRequest = async (req, res) => {
   }
 };
 
+
 const updateRequest = async (req, res) => {
 
   try {
@@ -65,45 +66,36 @@ const updateRequest = async (req, res) => {
 
         const { id } = req.params;
         const { status, comment } = req.body;
-        console.log(id);
-        console.log(comment);
+        
         
           // Encontrar la solicitud por su id e incluir la información del usuario asociado
         let request = await Request.findByPk(id);
         if (!request) {
             return res.status(404).json({ message: 'Solicitud no encontrada' });
           }
-      console.log(request);
+      
 
-      let user = await User.findByPk(request.id_user);
-        console.log(user);
+        let user = await User.findByPk(request.id_user);
+          
         let pet = await Pet.findByPk(request.id_pet);
 
         // Actualizar el estado y comentario de la solicitud
         request.status = status;
-        console.log(request.status);
-
         request.comment = comment;
-        console.log(request.comment);
-
-        await request.save();
+         await request.save();
 
         if (status === "approved"){
-            pet.status = "adopted"
-        } else if (status === "denied"){
-            pet.status = "available"
-        }
-        await pet.save()
-        console.log(request.comment);
-        console.log(request.status);
+              pet.status = "adopted"
+              user.adoptions = user.adoptions + 1;
+            } else if (status === "denied"){
+              pet.status = "available"
+            }
+            await pet.save()
+            await user.save();
+        
 
-        user.adoptions = user.adoptions + 1;
-        console.log(user.adoptions);
-        await user.save();
-        console.log(user.adoptions);
-
-        //  // Enviar el correo según el estado
-        // await updateRequestStatus(user.email, user.fullName, status, comment);
+            // Enviar el correo según el estado
+            await updateRequestStatus(user.email, user.fullName, pet.name, status, comment);
 
         return res.status(200).json({ message: 'Solicitud actualizada exitosamente', request});
     } catch (error) { 
