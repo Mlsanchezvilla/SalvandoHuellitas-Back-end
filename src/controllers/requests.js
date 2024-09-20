@@ -146,7 +146,41 @@ const createRequest = async (req, res) => {
   }
 };
 
+const getRequestById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Fetch the request by ID, including the User and Pet models
+    const request = await Request.findByPk(id, {
+      attributes: ['status', 'hasKids', 'hasPets', 'totalHabitants', 'space'],
+      include: [
+        {
+          model: User,
+          attributes: ['fullName', 'idCard'],  // Include user's full name and idCard
+        },
+        {
+          model: Pet,
+          attributes: ['name', 'photo'],  // Include pet's name and photo
+        },
+      ],
+    });
+
+    if (!request) {
+      return res.status(404).json({ message: 'Request not found' });
+    }
+
+    // Respond with the entire request including associations
+    res.status(200).json(request);
+  } catch (error) {
+    console.error('Error fetching request by ID:', error.message);
+    res.status(500).json({ message: 'Error fetching request', error: error.message });
+  }
+};
+
+
+
+
 module.exports = {
   listRequest,
-  updateRequest, createRequest
+  updateRequest, createRequest, getRequestById
 };
