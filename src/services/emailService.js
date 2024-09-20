@@ -44,15 +44,23 @@ const requestNotification = async (user, requestId, petName) => {
 
 
 
-const updateRequestStatus = async (email, fullName, status, comment) => {
+const updateRequestStatus = async (email, fullName, petName, status, comment) => {
   // Determinar el template ID basado en el estado de la solicitud
   let templateId;
 
-  if (status === 'aprobada') {
+  if (status === 'approved') {
     templateId = 'd-680f0beefdb34a068b6cd10111bfc0e1'; // Template para solicitudes aprobadas
-  } else if (status === 'rechazada') {
+  } else if (status === 'denied') {
     templateId = 'd-a627021843484c7e9409aa939942a57c'; // Template para solicitudes no aprobadas
   }
+
+  let defaultMessage;
+  if (status === 'approved') {
+    defaultMessage = '¡Felicidades! Tu adopción ha sido aprobada. Nos comunicaremos contigo pronto para finalizar el proceso de adopción. ¡Gracias por darle un hogar amoroso a una mascota!';
+  } else if (status === 'denied') {
+    defaultMessage = 'Lamentablemente, tu solicitud de adopción no ha sido aprobada en esta ocasión. Si deseas más información o necesitas ayuda, no dudes en contactarnos. ¡Gracias por tu interés en brindar un hogar a una mascota!';
+  }
+
 
   const msg = {
     to: email,
@@ -60,8 +68,9 @@ const updateRequestStatus = async (email, fullName, status, comment) => {
     templateId: templateId, // Usar el template dinámicamente
     dynamic_template_data: {
       fullName: fullName,
-      status: status,
-      comment: comment || 'Sin comentarios adicionales',
+      petName: petName,
+      status: status === 'approved' ? 'aprobada' : status === 'denied' ? 'rechazada' : 'desconocida',
+      comment: comment || defaultMessage,
     },
   };
 
